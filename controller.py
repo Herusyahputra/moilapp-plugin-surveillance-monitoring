@@ -13,14 +13,14 @@ class GridManager(object):
     def __init__(self):
         self.slots = [None] * 8
 
-    def get_index_of_slot(self, element: Any | None = None) -> int:
+    def get_index_of_slot(self, element) -> int:
         try:
             index: int = self.slots.index(element)
             return (index + 1)
         except ValueError:
             return -1
 
-    def get_slot_by_index(self, index: int) -> list | None:
+    def get_slot_by_index(self, index: int):
         return self.slots[index - 1] if (1 <= index <= len(self.slots)) else None
 
     def get_empty_slots(self) -> list:
@@ -29,7 +29,7 @@ class GridManager(object):
     def get_used_slots(self) -> list:
         return [i + 1 for i, slot in enumerate(self.slots) if slot is not None]
 
-    def set_slot(self, index: int, element: Any | None = None) -> None:
+    def set_slot(self, index: int, element) -> None:
         self.slots[index - 1] = element if (1 <= index <= len(self.slots)) else None
 
     def clear_slot(self, index: int) -> None:
@@ -43,14 +43,14 @@ class SetupDialog(QtWidgets.QDialog):
         self.model: Model = Model()
         self.model_apps: ModelApps = model_apps
         
-        self.ui: Ui_Setup = Ui_Setup()
+        self.ui = Ui_Setup()
         self.ui.setupUi(self)
         self.ui.okButton.clicked.connect(self.accept_function)
         self.ui.cancelButton.clicked.connect(self.reject_function)
 
         # setup and gracefully close the slots and signals of ModelApps (image_result and signal_image_original)
-        update_original_label_slot: Any | None = lambda img: self.update_label_image(self.ui.label_image_original, img)
-        update_result_label_slot: Any | None   = lambda img: self.update_label_image(self.ui.label_image_result, img)
+        update_original_label_slot = lambda img: self.update_label_image(self.ui.label_image_original, img)
+        update_result_label_slot = lambda img: self.update_label_image(self.ui.label_image_result, img)
         self.setup_original_signal(update_original_label_slot, self.model_apps.signal_image_original)
         self.setup_result_signal(update_result_label_slot, self.model_apps.image_result)
 
@@ -82,14 +82,15 @@ class SetupDialog(QtWidgets.QDialog):
         
         self.ui.okButton.setText("OK")
                 
-        # self.ui.alphaSpinbox.valueChanged.connect()
-        # self.ui.betaSpinbox.valueChanged.connect()
+        # self.ui.alphaSpinbox.valueChanged.connect(self.change_alpha_beta_optical_point)
+        # self.ui.betaSpinbox.valueChanged.connect(self.change_alpha_beta_optical_point)
         # self.ui.yawSpinbox.valueChanged.connect()
         # self.ui.pitchSpinbox.valueChanged.connect()
         # self.ui.rollSpinbox.valueChanged.connect()
         # self.ui.zoomSpinbox.valueChanged.connect(control_change_zooming)
 
         self.model_apps.alpha_beta.connect(self.alpha_beta_from_coordinate)
+        self.model_apps.value_coordinate.connect(self.set_value_coordinate)
         self.model_apps.state_rubberband = False
 
         # setup mouse events
@@ -98,6 +99,15 @@ class SetupDialog(QtWidgets.QDialog):
         self.ui.label_image_original.mousePressEvent = lambda event: self.model_apps.label_original_mouse_move_event(self.ui.label_image_original, event)
         self.ui.label_image_original.leaveEvent = lambda event: self.model_apps.label_original_mouse_leave_event()
         # ui_setup.label_image_original.mouseDoubleClickEvent =
+
+    def change_alpha_beta_optical_point(self):
+        alpha = self.ui.alphaSpinbox.value()
+        beta = self.ui.betaSpinbox.value()
+        self.model_apps.change_alpha_beta_by_spinbox(alpha, beta)
+    
+    def set_value_coordinate(self, coordinate):
+        self.ui.label_pos_x.setText(str(coordinate[0]))
+        self.ui.label_pos_y.setText(str(coordinate[1]))
 
     # set up Anypoint Mode 1 or 2 with state_recent_view = "AnypointView"
     def mode_select_clicked(self) -> None:
@@ -121,9 +131,17 @@ class SetupDialog(QtWidgets.QDialog):
         else:
             self.model_apps.set_draw_polygon = False
         
-    def alpha_beta_from_coordinate(self, alpha_beta: Any) -> None:
-        print(alpha_beta)
+    def alpha_beta_from_coordinate(self, alpha_beta: list) -> None:
+        self.ui.alphaSpinbox.blockSignals(True)
+        self.ui.betaSpinbox.blockSignals(True)
+        self.ui.alphaSpinbox.setValue(alpha_beta[0])
+        self.ui.betaSpinbox.setValue(alpha_beta[1])
+        self.ui.alphaSpinbox.blockSignals(False)
+        self.ui.betaSpinbox.blockSignals(False)
+        self.ui.label_alpha.setText(str(alpha_beta[0]))
+        self.ui.label_beta.setText(str(alpha_beta[1]))
         
+
     def update_label_image(self, ui_label: QtWidgets.QLabel, image: Any, width: int = 300, scale_content: bool = False) -> None:
         self.model.show_image_to_label(ui_label, image, width = width, scale_content = scale_content)
 
@@ -259,28 +277,8 @@ class Controller(QtWidgets.QWidget):
         self.model.show_image_to_label(ui_label, image, width = width, scale_content = scale_content)
 
     def setup_monitor(self, model_apps: ModelApps) -> True:
-        ui_setup: Ui_Setup = Ui_Setup()
         dialog: SetupDialog = SetupDialog(model_apps)
-
-        ui_setup.setupUi(dialog)
         
-        # ui_setup.label_title_original.setStyleSheet(self.model.style_label())
-        # ui_setup.label_title_image_result.setStyleSheet(self.model.style_label())
-        ui_setup.label_image_original.setStyleSheet(self.model.style_label())
-        ui_setup.label_image_result.setStyleSheet(self.model.style_label())
-        ui_setup.topButton.setStyleSheet(self.model.style_pushbutton())
-        ui_setup.belowButton.setStyleSheet(self.model.style_pushbutton())
-        ui_setup.rightButton.setStyleSheet(self.model.style_pushbutton())
-        ui_setup.leftButton.setStyleSheet(self.model.style_pushbutton())
-        ui_setup.centerButton.setStyleSheet(self.model.style_pushbutton())
-        ui_setup.okButton.setStyleSheet(self.model.style_pushbutton())
-        ui_setup.cancelButton.setStyleSheet(self.model.style_pushbutton())
-        
-        # ui_setup.cancelButton.clicked.connect(dialog.close_functon)
-        ui_setup.okButton.clicked.connect(dialog.accept_function)
-        
-        ui_setup.okButton.setText("OK")
-
         # start setup dialog
         result: int = dialog.exec()
         del dialog
