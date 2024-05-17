@@ -487,6 +487,9 @@
                        <property name="text">
                         <string>M1</string>
                        </property>
+                       <attribute name="buttonGroup">
+                        <string notr="true">modeSelectGroup</string>
+                       </attribute>
                       </widget>
                      </item>
                      <item>
@@ -494,6 +497,9 @@
                        <property name="text">
                         <string>M2</string>
                        </property>
+                       <attribute name="buttonGroup">
+                        <string notr="true">modeSelectGroup</string>
+                       </attribute>
                       </widget>
                      </item>
                      <item>
@@ -510,7 +516,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QSpinBox" name="zoomSpinMode_2">
+                      <widget class="QSpinBox" name="zoomSpinbox">
                        <property name="minimumSize">
                         <size>
                          <width>60</width>
@@ -536,7 +542,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QFrame" name="frame_6">
+                   <widget class="QFrame" name="frameMode1">
                     <layout class="QVBoxLayout" name="verticalLayout_3">
                      <item>
                       <widget class="QLabel" name="setLab1">
@@ -552,7 +558,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QSpinBox" name="setSpin1">
+                      <widget class="QSpinBox" name="alphaSpinbox">
                        <property name="minimumSize">
                         <size>
                          <width>60</width>
@@ -575,7 +581,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QSpinBox" name="setSpin2">
+                      <widget class="QSpinBox" name="betaSpinbox">
                        <property name="minimumSize">
                         <size>
                          <width>60</width>
@@ -601,7 +607,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QFrame" name="frame_7">
+                   <widget class="QFrame" name="frameMode2">
                     <layout class="QVBoxLayout" name="verticalLayout_2">
                      <item>
                       <widget class="QLabel" name="setLab3">
@@ -617,7 +623,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QSpinBox" name="setSpin3">
+                      <widget class="QSpinBox" name="pitchSpinbox">
                        <property name="minimumSize">
                         <size>
                          <width>60</width>
@@ -640,7 +646,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QSpinBox" name="zoomSpinMode">
+                      <widget class="QSpinBox" name="yawSpinbox">
                        <property name="minimumSize">
                         <size>
                          <width>60</width>
@@ -663,7 +669,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QSpinBox" name="zoomSpinMode_4">
+                      <widget class="QSpinBox" name="rollSpinbox">
                        <property name="minimumSize">
                         <size>
                          <width>60</width>
@@ -974,4 +980,7 @@
   <include location="resources/surveillance.qrc"/>
  </resources>
  <connections/>
+ <buttongroups>
+  <buttongroup name="modeSelectGroup"/>
+ </buttongroups>
 </ui>
