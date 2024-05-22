@@ -1,15 +1,14 @@
 from src.plugin_interface import PluginInterface
 from src.models.model_apps import Model, ModelApps
-from .surveillance import Ui_Form
+from .ui_surveillance import Ui_Form
 from .ui_setup import Ui_Setup
 
 from PyQt6 import QtWidgets, QtCore, QtGui
-from typing import Any
 
 MAX_MONITOR_INDEX: int = 8
 EMPTY_SLOTS: int = 8
 
-class GridManager(object):
+class GridManager:
     def __init__(self):
         self.slots = [None] * 8
 
@@ -29,10 +28,10 @@ class GridManager(object):
     def get_used_slots(self) -> list:
         return [i + 1 for i, slot in enumerate(self.slots) if slot is not None]
 
-    def set_slot(self, index: int, element) -> None:
+    def set_slot(self, index: int, element):
         self.slots[index - 1] = element if (1 <= index <= len(self.slots)) else None
 
-    def clear_slot(self, index: int) -> None:
+    def clear_slot(self, index: int):
         self.slots[index - 1] = None if (1 <= index <= len(self.slots)) else self.slots[index - 1]
 
 # for the setup dialog
@@ -76,11 +75,6 @@ class SetupDialog(QtWidgets.QDialog):
         self.ui.centerButton.setStyleSheet(self.model.style_pushbutton())
         self.ui.okButton.setStyleSheet(self.model.style_pushbutton())
         self.ui.cancelButton.setStyleSheet(self.model.style_pushbutton())
-        
-        # ui_setup.cancelButton.clicked.connect(dialog.close_functon)
-        # self.ui.okButton.clicked.connect(dialog.accept_function)
-        
-        self.ui.okButton.setText("OK")
                 
         # self.ui.alphaSpinbox.valueChanged.connect(self.change_alpha_beta_optical_point)
         # self.ui.betaSpinbox.valueChanged.connect(self.change_alpha_beta_optical_point)
@@ -110,7 +104,7 @@ class SetupDialog(QtWidgets.QDialog):
         self.ui.label_pos_y.setText(str(coordinate[1]))
 
     # set up Anypoint Mode 1 or 2 with state_recent_view = "AnypointView"
-    def mode_select_clicked(self) -> None:
+    def mode_select_clicked(self):
         self.ui.frameMode1.hide()
         self.ui.frameMode2.hide()
         
@@ -125,13 +119,13 @@ class SetupDialog(QtWidgets.QDialog):
             self.model_apps.change_anypoint_mode = "mode_2"
             self.model_apps.create_maps_anypoint_mode_2()
     
-    def checkbox_click(self) -> None:
+    def checkbox_click(self):
         if self.ui.checkBox.isChecked():
             self.model_apps.set_draw_polygon = True
         else:
             self.model_apps.set_draw_polygon = False
         
-    def alpha_beta_from_coordinate(self, alpha_beta: list) -> None:
+    def alpha_beta_from_coordinate(self, alpha_beta: list):
         self.ui.alphaSpinbox.blockSignals(True)
         self.ui.betaSpinbox.blockSignals(True)
         self.ui.alphaSpinbox.setValue(alpha_beta[0])
@@ -142,33 +136,33 @@ class SetupDialog(QtWidgets.QDialog):
         self.ui.label_beta.setText(str(alpha_beta[1]))
         
 
-    def update_label_image(self, ui_label: QtWidgets.QLabel, image: Any, width: int = 300, scale_content: bool = False) -> None:
+    def update_label_image(self, ui_label: QtWidgets.QLabel, image, width: int = 300, scale_content: bool = False):
         self.model.show_image_to_label(ui_label, image, width = width, scale_content = scale_content)
 
     # get the slot and signal of the result image (rectilinear) so it can be connected and display it continously
-    def setup_result_signal(self, slot: Any, signal: Any) -> None:
-        self.result_slot: Any = slot
-        self.result_signal: Any = signal
+    def setup_result_signal(self, slot: QtCore.pyqtSlot, signal: QtCore.pyqtSignal):
+        self.result_slot = slot
+        self.result_signal = signal
         self.result_signal.connect(self.result_slot)
 
     # get the slot and signal of the original image (fisheye) so it can be connected and display it continously
-    def setup_original_signal(self, slot: Any, signal: Any) -> None:
-        self.original_slot: Any = slot
-        self.original_signal: Any = signal
+    def setup_original_signal(self, slot: QtCore.pyqtSlot, signal: QtCore.pyqtSignal):
+        self.original_slot = slot
+        self.original_signal = signal
         self.original_signal.connect(self.original_slot)
 
     # Escape Key does not invoke closeEvent (to disconnect the signals and slots), so need to do it manually
-    def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
+    def keyPressEvent(self, event: QtGui.QKeyEvent):
         self.reject_function() if (event.key() == QtCore.Qt.Key.Key_Escape) else super().keyPressEvent(event)
 
     # need to disconnect the signals and slots else RuntimeError: wrapped C/C++ object of type QLabel has been deleted
     # because the QLabel's lifetime will be over when the Setup Dialog is closed but the previous slot and signal will still call it
-    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+    def closeEvent(self, event: QtGui.QCloseEvent):
         self.disconnect_signals()
         del self.model_apps
         super().closeEvent(event)
 
-    def reject_function(self) -> None:
+    def reject_function(self):
         if EMPTY_SLOTS == MAX_MONITOR_INDEX:
             self.model_apps.reset_config()
             try: self.model_apps.cap.close()
@@ -177,11 +171,11 @@ class SetupDialog(QtWidgets.QDialog):
         self.reject()
         self.close()
 
-    def accept_function(self) -> None:
+    def accept_function(self):
         self.accept()
         self.close()
 
-    def disconnect_signals(self) -> None:
+    def disconnect_signals(self):
         self.result_signal.disconnect(self.result_slot)
         self.original_signal.disconnect(self.original_slot)
 
@@ -205,7 +199,7 @@ class Controller(QtWidgets.QWidget):
         self.set_stylesheet()
 
     # find every QPushButton, QLabel, QScrollArea, and Line, this works because this class is a subclass of QWidget
-    def set_stylesheet(self) -> None:
+    def set_stylesheet(self):
         [button.setStyleSheet(self.model.style_pushbutton()) for button in self.findChildren(QtWidgets.QPushButton)]
         [label.setStyleSheet(self.model.style_label()) for label in self.findChildren(QtWidgets.QLabel)]
         [scroll_area.setStyleSheet(self.model.style_scroll_area()) for scroll_area in
@@ -253,14 +247,14 @@ class Controller(QtWidgets.QWidget):
         
         EMPTY_SLOTS -= 1
 
-    def setup_clicked(self, ui_idx: int, media_sources: tuple) -> None:
+    def setup_clicked(self, ui_idx: int, media_sources: tuple):
         label, setup_button, capture_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
-        prev_model_apps: list | None = self.grid_manager.get_slot_by_index(ui_idx)
+        prev_model_apps: list = self.grid_manager.get_slot_by_index(ui_idx)
         model_apps: ModelApps = ModelApps()
         model_apps.update_file_config()
         model_apps.set_media_source(*media_sources)
 
-        return_status: bool | None = self.setup_monitor(model_apps)
+        return_status: bool = self.setup_monitor(model_apps)
         if return_status is False:
             del model_apps
             return
@@ -273,10 +267,10 @@ class Controller(QtWidgets.QWidget):
         self.grid_manager.set_slot(ui_idx, model_apps)
         del prev_model_apps
 
-    def update_label_image(self, ui_label: Ui_Form, image: Any, width: int = 300, scale_content: bool = False):
+    def update_label_image(self, ui_label: Ui_Form, image, width: int = 300, scale_content: bool = False):
         self.model.show_image_to_label(ui_label, image, width = width, scale_content = scale_content)
 
-    def setup_monitor(self, model_apps: ModelApps) -> True:
+    def setup_monitor(self, model_apps: ModelApps) -> bool:
         dialog: SetupDialog = SetupDialog(model_apps)
         
         # start setup dialog
@@ -284,7 +278,7 @@ class Controller(QtWidgets.QWidget):
         del dialog
         return True if (result == QtWidgets.QDialog.DialogCode.Accepted) else False
 
-    def delete_monitor(self, model_apps: ModelApps) -> None:
+    def delete_monitor(self, model_apps: ModelApps):
         global EMPTY_SLOTS
         
         model_apps: ModelApps = model_apps
@@ -293,7 +287,8 @@ class Controller(QtWidgets.QWidget):
         if ui_idx == -1: return
         
         label, setup_button, capture_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
-        label.clear(); label.setText("")
+        label.clear()
+        label.setText("")
         setup_button.clicked.disconnect()
         # capture_button.clicked.disconnect()
         # delete_button.clicked.disconnect()
@@ -316,30 +311,33 @@ class Controller(QtWidgets.QWidget):
         self.grid_manager.clear_slot(ui_idx)
         EMPTY_SLOTS += 1
 
-    def alpha_beta_from_coordinate(self, alpha_beta: Any) -> None:
+    def alpha_beta_from_coordinate(self, alpha_beta):
         print(alpha_beta)
 
-    def captured_clicked(self) -> None:
+    def captured_clicked(self):
         pass
 
-    def parameter_clicked(self) -> None:
+    def parameter_clicked(self):
         self.model.form_camera_parameter()
 
-    def fisheye_clicked(self) -> None:
-        print("INFO: \"fisheye_clicked(self)\" function is STILL under development!")
+    def fisheye_clicked(self):
+        print("INFO: \"fisheye_clicked()\" function is STILL under development!")
 
-    def recorded_clicked(self) -> None:
-        print("INFO: \"recorded_clicked(self)\" function is STILL under development!")
+    def recorded_clicked(self):
+        print("INFO: \"recorded_clicked()\" function is STILL under development!")
 
 class Surveillance(PluginInterface):
     def __init__(self):
         super().__init__()
-        self.widget: None | Any = None
-        self.description: str = "Moilapp Plugin: Surveillance monitoring area using Fisheye Camera for a wide 360deg view"
+        self.widget = None
+        self.description = "Moilapp Plugin: Surveillance monitoring area using Fisheye Camera for a wide 360deg view"
 
-    def set_plugin_widget(self, model) -> Controller:
-        self.widget: Controller = Controller(model)
+    def set_plugin_widget(self, model):
+        self.widget = Controller(model)
         return self.widget
 
-    def set_icon_apps(self) -> str: return "icon.png"
-    def change_stylesheet(self) -> None: self.widget.set_stylesheet()
+    def set_icon_apps(self): 
+        return "icon.png"
+    
+    def change_stylesheet(self): 
+        self.widget.set_stylesheet()
