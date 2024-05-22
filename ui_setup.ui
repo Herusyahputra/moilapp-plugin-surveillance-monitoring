@@ -503,7 +503,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QLabel" name="zoomLabMode_2">
+                      <widget class="QLabel" name="labelZoom">
                        <property name="minimumSize">
                         <size>
                          <width>60</width>
@@ -516,12 +516,12 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QSpinBox" name="zoomSpinbox">
-                       <property name="minimumSize">
-                        <size>
-                         <width>60</width>
-                         <height>20</height>
-                        </size>
+                      <widget class="QDoubleSpinBox" name="doubleSpinBox_zoom">
+                       <property name="maximum">
+                        <double>20.000000000000000</double>
+                       </property>
+                       <property name="singleStep">
+                        <double>0.010000000000000</double>
                        </property>
                       </widget>
                      </item>
@@ -542,10 +542,10 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QFrame" name="frameMode1">
-                    <layout class="QVBoxLayout" name="verticalLayout_3">
+                   <widget class="QFrame" name="frame_6">
+                    <layout class="QVBoxLayout" name="verticalLayout_2">
                      <item>
-                      <widget class="QLabel" name="setLab1">
+                      <widget class="QLabel" name="labelAlpha">
                        <property name="minimumSize">
                         <size>
                          <width>60</width>
@@ -558,17 +558,20 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QSpinBox" name="alphaSpinbox">
-                       <property name="minimumSize">
-                        <size>
-                         <width>60</width>
-                         <height>20</height>
-                        </size>
+                      <widget class="QDoubleSpinBox" name="doubleSpinBox_alpha">
+                       <property name="minimum">
+                        <double>-360.000000000000000</double>
+                       </property>
+                       <property name="maximum">
+                        <double>360.000000000000000</double>
+                       </property>
+                       <property name="singleStep">
+                        <double>0.100000000000000</double>
                        </property>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QLabel" name="setLab2">
+                      <widget class="QLabel" name="labelBeta">
                        <property name="minimumSize">
                         <size>
                          <width>60</width>
@@ -581,82 +584,20 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QSpinBox" name="betaSpinbox">
-                       <property name="minimumSize">
-                        <size>
-                         <width>60</width>
-                         <height>20</height>
-                        </size>
+                      <widget class="QDoubleSpinBox" name="doubleSpinBox_beta">
+                       <property name="minimum">
+                        <double>-360.000000000000000</double>
+                       </property>
+                       <property name="maximum">
+                        <double>360.000000000000000</double>
+                       </property>
+                       <property name="singleStep">
+                        <double>0.100000000000000</double>
                        </property>
                       </widget>
                      </item>
                      <item>
-                      <spacer name="verticalSpacer_2">
-                       <property name="orientation">
-                        <enum>Qt::Vertical</enum>
-                       </property>
-                       <property name="sizeHint" stdset="0">
-                        <size>
-                         <width>20</width>
-                         <height>40</height>
-                        </size>
-                       </property>
-                      </spacer>
-                     </item>
-                    </layout>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QFrame" name="frameMode2">
-                    <layout class="QVBoxLayout" name="verticalLayout_2">
-                     <item>
-                      <widget class="QLabel" name="setLab3">
-                       <property name="minimumSize">
-                        <size>
-                         <width>60</width>
-                         <height>10</height>
-                        </size>
-                       </property>
-                       <property name="text">
-                        <string>Pitch:</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QSpinBox" name="pitchSpinbox">
-                       <property name="minimumSize">
-                        <size>
-                         <width>60</width>
-                         <height>20</height>
-                        </size>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLabel" name="zoomLabMode">
-                       <property name="minimumSize">
-                        <size>
-                         <width>60</width>
-                         <height>10</height>
-                        </size>
-                       </property>
-                       <property name="text">
-                        <string>Yaw:</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QSpinBox" name="yawSpinbox">
-                       <property name="minimumSize">
-                        <size>
-                         <width>60</width>
-                         <height>20</height>
-                        </size>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLabel" name="zoomLabMode_4">
+                      <widget class="QLabel" name="labelRoll">
                        <property name="minimumSize">
                         <size>
                          <width>60</width>
@@ -669,12 +610,15 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QSpinBox" name="rollSpinbox">
-                       <property name="minimumSize">
-                        <size>
-                         <width>60</width>
-                         <height>20</height>
-                        </size>
+                      <widget class="QDoubleSpinBox" name="doubleSpinBox_roll">
+                       <property name="minimum">
+                        <double>-360.000000000000000</double>
+                       </property>
+                       <property name="maximum">
+                        <double>360.000000000000000</double>
+                       </property>
+                       <property name="singleStep">
+                        <double>0.100000000000000</double>
                        </property>
                       </widget>
                      </item>

@@ -1,5 +1,6 @@
 from src.plugin_interface import PluginInterface
 from src.models.model_apps import Model, ModelApps
+from src.controllers.control_anypoint import AnypointConfig
 from .ui_surveillance import Ui_Form
 from .ui_setup import Ui_Setup
 
@@ -39,13 +40,15 @@ class SetupDialog(QtWidgets.QDialog):
     def __init__(self, model_apps: ModelApps):
         super().__init__()
         
-        self.model: Model = Model()
-        self.model_apps: ModelApps = model_apps
         
         self.ui = Ui_Setup()
         self.ui.setupUi(self)
         self.ui.okButton.clicked.connect(self.accept_function)
         self.ui.cancelButton.clicked.connect(self.reject_function)
+        
+        self.model: Model = Model()
+        self.model_apps: ModelApps = model_apps
+        self.anypoint_config = AnypointConfig(self.ui)
 
         # setup and gracefully close the slots and signals of ModelApps (image_result and signal_image_original)
         update_original_label_slot = lambda img: self.update_label_image(self.ui.label_image_original, img)
@@ -64,25 +67,6 @@ class SetupDialog(QtWidgets.QDialog):
         self.ui.checkBox.setChecked(True)
         self.checkbox_click()
         
-        self.ui.label_title_original.setStyleSheet(self.model.style_label())
-        self.ui.label_title_image_result.setStyleSheet(self.model.style_label())
-        self.ui.label_image_original.setStyleSheet(self.model.style_label())
-        self.ui.label_image_result.setStyleSheet(self.model.style_label())
-        self.ui.topButton.setStyleSheet(self.model.style_pushbutton())
-        self.ui.belowButton.setStyleSheet(self.model.style_pushbutton())
-        self.ui.rightButton.setStyleSheet(self.model.style_pushbutton())
-        self.ui.leftButton.setStyleSheet(self.model.style_pushbutton())
-        self.ui.centerButton.setStyleSheet(self.model.style_pushbutton())
-        self.ui.okButton.setStyleSheet(self.model.style_pushbutton())
-        self.ui.cancelButton.setStyleSheet(self.model.style_pushbutton())
-                
-        # self.ui.alphaSpinbox.valueChanged.connect(self.change_alpha_beta_optical_point)
-        # self.ui.betaSpinbox.valueChanged.connect(self.change_alpha_beta_optical_point)
-        # self.ui.yawSpinbox.valueChanged.connect()
-        # self.ui.pitchSpinbox.valueChanged.connect()
-        # self.ui.rollSpinbox.valueChanged.connect()
-        # self.ui.zoomSpinbox.valueChanged.connect(control_change_zooming)
-
         self.model_apps.alpha_beta.connect(self.alpha_beta_from_coordinate)
         self.model_apps.value_coordinate.connect(self.set_value_coordinate)
         self.model_apps.state_rubberband = False
@@ -94,10 +78,35 @@ class SetupDialog(QtWidgets.QDialog):
         self.ui.label_image_original.leaveEvent = lambda event: self.model_apps.label_original_mouse_leave_event()
         # ui_setup.label_image_original.mouseDoubleClickEvent =
 
-    def change_alpha_beta_optical_point(self):
-        alpha = self.ui.alphaSpinbox.value()
-        beta = self.ui.betaSpinbox.value()
-        self.model_apps.change_alpha_beta_by_spinbox(alpha, beta)
+        self.ui.doubleSpinBox_alpha.valueChanged.connect(self.change_properties_anypoint)
+        self.ui.doubleSpinBox_beta.valueChanged.connect(self.change_properties_anypoint)
+        self.ui.doubleSpinBox_roll.valueChanged.connect(self.change_properties_anypoint)
+        self.ui.doubleSpinBox_zoom.valueChanged.connect(self.change_properties_anypoint)
+
+        self.set_stylesheet()
+
+    def set_stylesheet(self):
+        self.ui.label_title_original.setStyleSheet(self.model.style_label())
+        self.ui.label_title_image_result.setStyleSheet(self.model.style_label())
+        self.ui.label_image_original.setStyleSheet(self.model.style_label())
+        self.ui.label_image_result.setStyleSheet(self.model.style_label())
+        self.ui.topButton.setStyleSheet(self.model.style_pushbutton())
+        self.ui.belowButton.setStyleSheet(self.model.style_pushbutton())
+        self.ui.rightButton.setStyleSheet(self.model.style_pushbutton())
+        self.ui.leftButton.setStyleSheet(self.model.style_pushbutton())
+        self.ui.centerButton.setStyleSheet(self.model.style_pushbutton())
+        self.ui.okButton.setStyleSheet(self.model.style_pushbutton())
+        self.ui.cancelButton.setStyleSheet(self.model.style_pushbutton())
+
+    def change_properties_anypoint(self):
+        self.model_apps.state_rubberband = False
+        if self.ui.m1Button.isChecked():
+            self.anypoint_config.change_properties_mode_1()
+            self.model_apps.create_maps_anypoint_mode_1()
+        else:
+            self.anypoint_config.change_properties_mode_2()
+            self.model_apps.create_maps_anypoint_mode_2()
+        self.model_apps.update_file_config()
     
     def set_value_coordinate(self, coordinate):
         self.ui.label_pos_x.setText(str(coordinate[0]))
@@ -105,19 +114,25 @@ class SetupDialog(QtWidgets.QDialog):
 
     # set up Anypoint Mode 1 or 2 with state_recent_view = "AnypointView"
     def mode_select_clicked(self):
-        self.ui.frameMode1.hide()
-        self.ui.frameMode2.hide()
-        
         if self.ui.m1Button.isChecked():
-            self.ui.frameMode1.show()
+            self.ui.doubleSpinBox_roll.hide()
+            self.ui.labelRoll.hide()
+            self.ui.labelAlpha.setText('Alpha:')
+            self.ui.labelBeta.setText('Beta:')
             self.model_apps.state_recent_view = "AnypointView"
             self.model_apps.change_anypoint_mode = "mode_1"
             self.model_apps.create_maps_anypoint_mode_1()
+            self.anypoint_config.showing_config_mode_1()
         else:
-            self.ui.frameMode2.show()
+            self.ui.doubleSpinBox_roll.show()
+            self.ui.labelRoll.show()
+            self.ui.labelAlpha.setText('Pitch:')
+            self.ui.labelBeta.setText('Yaw:')
             self.model_apps.state_recent_view = "AnypointView"
             self.model_apps.change_anypoint_mode = "mode_2"
             self.model_apps.create_maps_anypoint_mode_2()
+            self.anypoint_config.showing_config_mode_2()
+        self.model_apps.update_properties_config_when_change_view_mode()
     
     def checkbox_click(self):
         if self.ui.checkBox.isChecked():
@@ -126,15 +141,19 @@ class SetupDialog(QtWidgets.QDialog):
             self.model_apps.set_draw_polygon = False
         
     def alpha_beta_from_coordinate(self, alpha_beta: list):
-        self.ui.alphaSpinbox.blockSignals(True)
-        self.ui.betaSpinbox.blockSignals(True)
-        self.ui.alphaSpinbox.setValue(alpha_beta[0])
-        self.ui.betaSpinbox.setValue(alpha_beta[1])
-        self.ui.alphaSpinbox.blockSignals(False)
-        self.ui.betaSpinbox.blockSignals(False)
+        self.ui.doubleSpinBox_alpha.blockSignals(True)
+        self.ui.doubleSpinBox_beta.blockSignals(True)
+        if any(elem is None for elem in alpha_beta):
+            self.ui.doubleSpinBox_alpha.setValue(0)
+            self.ui.doubleSpinBox_beta.setValue(0)
+        else:
+            self.ui.doubleSpinBox_alpha.setValue(round(alpha_beta[0], 2))
+            self.ui.doubleSpinBox_beta.setValue(round(alpha_beta[1], 2))
+        self.ui.doubleSpinBox_alpha.blockSignals(False)
+        self.ui.doubleSpinBox_beta.blockSignals(False)
+
         self.ui.label_alpha.setText(str(alpha_beta[0]))
         self.ui.label_beta.setText(str(alpha_beta[1]))
-        
 
     def update_label_image(self, ui_label: QtWidgets.QLabel, image, width: int = 300, scale_content: bool = False):
         self.model.show_image_to_label(ui_label, image, width = width, scale_content = scale_content)
@@ -222,9 +241,6 @@ class Controller(QtWidgets.QWidget):
         ui_idx: int = self.grid_manager.get_empty_slots()[0]
         label, setup_button, capture_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
 
-        # I have no idea how this works but I think the order of calling these is important
-        # model_apps.create_moildev()
-        # model_apps.create_image_original()
         source_type, cam_type, media_source, params_name = self.model.select_media_source()
         if media_source is not None:
             model_apps: ModelApps = ModelApps()
@@ -273,7 +289,6 @@ class Controller(QtWidgets.QWidget):
     def setup_monitor(self, model_apps: ModelApps) -> bool:
         dialog: SetupDialog = SetupDialog(model_apps)
         
-        # start setup dialog
         result: int = dialog.exec()
         del dialog
         return True if (result == QtWidgets.QDialog.DialogCode.Accepted) else False
@@ -291,11 +306,10 @@ class Controller(QtWidgets.QWidget):
         label.setText("")
         setup_button.clicked.disconnect()
         # capture_button.clicked.disconnect()
-        # delete_button.clicked.disconnect()
+        delete_button.clicked.disconnect()
 
         if model_apps.cap is not None:
             model_apps.timer.stop()
-            # model_apps.__image_result = None
             model_apps.__image_original = None
             model_apps.image = None
             model_apps.image_resize = None
@@ -306,8 +320,6 @@ class Controller(QtWidgets.QWidget):
                 except: pass
                 model_apps.cap = None
 
-        # THIS WILL MAKE "QThread: Destroyed while thread is still running"
-        # Already used QTimer.singleShot(1000, lambda: ...) but still same results
         self.grid_manager.clear_slot(ui_idx)
         EMPTY_SLOTS += 1
 
