@@ -1,7 +1,9 @@
 from src.plugin_interface import PluginInterface
 from src.models.model_apps import Model, ModelApps
 from src.controllers.control_anypoint import AnypointConfig
-from .ui_surveillance import Ui_Form
+from .ui_recoder import Ui_Recorder
+from .custom_screen_capture import ScreenRecorder
+from .ui_surveillance import Ui_Main
 from .ui_setup import Ui_Setup
 
 from PyQt6 import QtWidgets, QtCore, QtGui
@@ -66,6 +68,12 @@ class SetupDialog(QtWidgets.QDialog):
         self.ui.checkBox.stateChanged.connect(self.checkbox_click)
         self.ui.checkBox.setChecked(True)
         self.checkbox_click()
+        
+        self.ui.topButton.clicked.connect(self.onclick_anypoint)
+        self.ui.belowButton.clicked.connect(self.onclick_anypoint)
+        self.ui.centerButton.clicked.connect(self.onclick_anypoint)
+        self.ui.leftButton.clicked.connect(self.onclick_anypoint)
+        self.ui.rightButton.clicked.connect(self.onclick_anypoint)
         
         self.model_apps.alpha_beta.connect(self.alpha_beta_from_coordinate)
         self.model_apps.value_coordinate.connect(self.set_value_coordinate)
@@ -152,8 +160,39 @@ class SetupDialog(QtWidgets.QDialog):
         self.ui.doubleSpinBox_alpha.blockSignals(False)
         self.ui.doubleSpinBox_beta.blockSignals(False)
 
-        self.ui.label_alpha.setText(str(alpha_beta[0]))
-        self.ui.label_beta.setText(str(alpha_beta[1]))
+        self.ui.label_alpha.setText(str(round(alpha_beta[0], 2)))
+        self.ui.label_beta.setText(str(round(alpha_beta[1], 2)))
+
+    def onclick_anypoint(self):
+        if self.ui.m1Button.isChecked():
+            if self.sender().objectName() == 'topButton':
+                self.model_apps.set_alpha_beta(75, 0)
+            elif self.sender().objectName() == 'belowButton':
+                self.model_apps.set_alpha_beta(75, 180)
+            elif self.sender().objectName() == 'centerButton':
+                self.model_apps.set_alpha_beta(0, 0)
+            elif self.sender().objectName() == 'leftButton':
+                self.model_apps.set_alpha_beta(75, -90)
+            elif self.sender().objectName() == 'rightButton':
+                self.model_apps.set_alpha_beta(75, 90)
+            self.anypoint_config.showing_config_mode_1()
+            self.model_apps.create_maps_anypoint_mode_1()
+        else:
+            if self.sender().objectName() == 'topButton':
+                self.model_apps.set_alpha_beta(75, 0)
+            elif self.sender().objectName() == 'belowButton':
+                self.model_apps.set_alpha_beta(-75, 0)
+            elif self.sender().objectName() == 'centerButton':
+                self.model_apps.set_alpha_beta(0, 0)
+            elif self.sender().objectName() == 'leftButton':
+                self.model_apps.set_alpha_beta(0, -75)
+            elif self.sender().objectName() == 'rightButton':
+                self.model_apps.set_alpha_beta(0, 75)
+            self.anypoint_config.showing_config_mode_2()
+            self.model_apps.create_maps_anypoint_mode_2()
+        self.model_apps.state_rubberband = False
+        self.model_apps.update_file_config()
+        
 
     def update_label_image(self, ui_label: QtWidgets.QLabel, image, width: int = 300, scale_content: bool = False):
         self.model.show_image_to_label(ui_label, image, width = width, scale_content = scale_content)
@@ -204,7 +243,7 @@ class Controller(QtWidgets.QWidget):
 
         self.model: Model = model
 
-        self.ui: Ui_Form = Ui_Form()
+        self.ui = Ui_Main()
         self.ui.setupUi(self)
         
         self.ui.addButton.clicked.connect(self.add_clicked)
@@ -217,6 +256,20 @@ class Controller(QtWidgets.QWidget):
 
         self.set_stylesheet()
 
+        self.ui_recoder = Ui_Recorder()
+        self.recoder_widget = QtWidgets.QWidget()
+        screen_geometry = QtWidgets.QApplication.primaryScreen().availableGeometry()
+        screen_width = screen_geometry.width()
+        screen_height = screen_geometry.height()
+        self.recoder_widget.setMinimumSize(screen_width, screen_height)
+        self.recoder_widget.setMaximumSize(screen_width, screen_height)
+        self.recoder_widget.showMaximized()
+        self.recoder_widget.hide()
+        self.ui_recoder.setupUi(self.recoder_widget)
+        self.recorder = ScreenRecorder(self.recoder_widget)
+
+        self.ui.recordMonitorButton.clicked.connect(self.start_stop_recording)
+
     # find every QPushButton, QLabel, QScrollArea, and Line, this works because this class is a subclass of QWidget
     def set_stylesheet(self):
         [button.setStyleSheet(self.model.style_pushbutton()) for button in self.findChildren(QtWidgets.QPushButton)]
@@ -227,19 +280,29 @@ class Controller(QtWidgets.QWidget):
         self.ui.line.setStyleSheet(self.model.style_line())
         self.ui.line_2.setStyleSheet(self.model.style_line())
         self.ui.line_3.setStyleSheet(self.model.style_line())
+
+        self.ui.recordMonitorButton.setStyleSheet(self.model.style_pushbutton_play_pause_video())
     
     def get_monitor_ui_by_idx(self, ui_idx) -> tuple[QtWidgets.QLabel, QtWidgets.QPushButton, QtWidgets.QPushButton, QtWidgets.QPushButton]:
         label: QtWidgets.QLabel               = getattr(self.ui, f"displayLab{ui_idx}")
+        label_recording: QtWidgets.QLabel               = getattr(self.ui_recoder, f"displayLab{ui_idx}")
         setup_button: QtWidgets.QPushButton   = getattr(self.ui, f"setupButton{ui_idx}")
         capture_button: QtWidgets.QPushButton = getattr(self.ui, f"captureButton{ui_idx}")
         delete_button: QtWidgets.QPushButton  = getattr(self.ui, f"deleteButton{ui_idx}")
-        return (label, setup_button, capture_button, delete_button)
+        return (label, label_recording, setup_button, capture_button, delete_button)
+
+    def start_stop_recording(self):
+        if self.ui.recordMonitorButton.isChecked():
+            self.recorder.start()
+        else:
+            self.recorder.stop()
+            self.recorder.save_video()
 
     def add_clicked(self):
         global EMPTY_SLOTS
         
         ui_idx: int = self.grid_manager.get_empty_slots()[0]
-        label, setup_button, capture_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
+        label, label_recording, setup_button, capture_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
 
         source_type, cam_type, media_source, params_name = self.model.select_media_source()
         if media_source is not None:
@@ -254,6 +317,7 @@ class Controller(QtWidgets.QWidget):
                 return
 
             model_apps.image_result.connect(lambda img: self.update_label_image(label, img))
+            model_apps.image_result.connect(lambda img: self.update_label_image(label_recording, img))
             model_apps.create_image_result()
 
             setup_button.clicked.connect(lambda: self.setup_clicked(ui_idx, (source_type, cam_type, media_source, params_name)))
@@ -264,7 +328,7 @@ class Controller(QtWidgets.QWidget):
         EMPTY_SLOTS -= 1
 
     def setup_clicked(self, ui_idx: int, media_sources: tuple):
-        label, setup_button, capture_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
+        label, label_recording, setup_button, capture_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
         prev_model_apps: list = self.grid_manager.get_slot_by_index(ui_idx)
         model_apps: ModelApps = ModelApps()
         model_apps.update_file_config()
@@ -277,13 +341,14 @@ class Controller(QtWidgets.QWidget):
 
         self.delete_monitor(prev_model_apps)
         model_apps.image_result.connect(lambda img: self.update_label_image(label, img))
+        model_apps.image_result.connect(lambda img: self.update_label_image(label_recording, img))
         model_apps.create_image_result()
         setup_button.clicked.connect(lambda: self.setup_clicked(ui_idx, media_sources))
         delete_button.clicked.connect(lambda: self.delete_monitor(model_apps))
         self.grid_manager.set_slot(ui_idx, model_apps)
         del prev_model_apps
 
-    def update_label_image(self, ui_label: Ui_Form, image, width: int = 300, scale_content: bool = False):
+    def update_label_image(self, ui_label, image, width: int = 300, scale_content: bool = False):
         self.model.show_image_to_label(ui_label, image, width = width, scale_content = scale_content)
 
     def setup_monitor(self, model_apps: ModelApps) -> bool:
@@ -301,9 +366,11 @@ class Controller(QtWidgets.QWidget):
         
         if ui_idx == -1: return
         
-        label, setup_button, capture_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
+        label, label_recording, setup_button, capture_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
         label.clear()
         label.setText("")
+        label_recording.clear()
+        label_recording.setText("")
         setup_button.clicked.disconnect()
         # capture_button.clicked.disconnect()
         delete_button.clicked.disconnect()
@@ -322,9 +389,6 @@ class Controller(QtWidgets.QWidget):
 
         self.grid_manager.clear_slot(ui_idx)
         EMPTY_SLOTS += 1
-
-    def alpha_beta_from_coordinate(self, alpha_beta):
-        print(alpha_beta)
 
     def captured_clicked(self):
         pass

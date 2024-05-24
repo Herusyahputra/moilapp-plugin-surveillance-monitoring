@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>Main</class>
+ <widget class="QWidget" name="Main">
   <property name="enabled">
    <bool>true</bool>
   </property>
@@ -127,6 +127,45 @@
           </spacer>
          </item>
          <item>
+          <widget class="QPushButton" name="recordMonitorButton">
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>40</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="resources/surveillance.qrc">
+             <normaloff>:/icon/record.png</normaloff>
+             <normalon>:/icon/stop.png</normalon>:/icon/record.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>25</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="dateTime">
            <property name="minimumSize">
             <size>
@@ -188,7 +227,7 @@
             <number>1</number>
            </property>
            <item>
-            <widget class="QFrame" name="frame_2">
+            <widget class="QFrame" name="displayFrame1">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -336,7 +375,7 @@
             <number>1</number>
            </property>
            <item>
-            <widget class="QFrame" name="frame_3">
+            <widget class="QFrame" name="displayFrame2">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -478,7 +517,7 @@
             <number>1</number>
            </property>
            <item>
-            <widget class="QFrame" name="frame_4">
+            <widget class="QFrame" name="displayFrame3">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -620,7 +659,7 @@
             <number>1</number>
            </property>
            <item>
-            <widget class="QFrame" name="frame_5">
+            <widget class="QFrame" name="displayFrame4">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -770,7 +809,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QFrame" name="frame">
+       <widget class="QFrame" name="displayFrame5">
         <layout class="QHBoxLayout" name="horizontalLayout_9">
          <item>
           <layout class="QVBoxLayout" name="display5">
@@ -914,7 +953,7 @@
             <number>1</number>
            </property>
            <item>
-            <widget class="QFrame" name="frame_8">
+            <widget class="QFrame" name="displayFrame6">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -1050,7 +1089,7 @@
             <number>1</number>
            </property>
            <item>
-            <widget class="QFrame" name="frame_7">
+            <widget class="QFrame" name="displayFrame7">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -1186,7 +1225,7 @@
             <number>1</number>
            </property>
            <item>
-            <widget class="QFrame" name="frame_6">
+            <widget class="QFrame" name="displayFrame8">
              <property name="minimumSize">
               <size>
                <width>0</width>
