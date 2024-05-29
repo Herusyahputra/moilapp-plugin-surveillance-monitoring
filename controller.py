@@ -212,18 +212,15 @@ class SetupDialog(QtWidgets.QDialog):
 
     def label_original_mouse_press_event(self, event):
         if event.buttons() == QtCore.Qt.MouseButton.LeftButton:
-            if self.model_apps.state_rubberband:
-                print("under developing")
-            else:
-                if self.model_apps.state_recent_view == "AnypointView":
-                    if self.ui.m1Button.isChecked():
-                        self.model_apps.label_original_mouse_press_event_anypoint_mode_1(event)
-                        self.model_apps.create_maps_anypoint_mode_1()
-                        self.anypoint_config.showing_config_mode_1()
-                    else:
-                        self.model_apps.label_original_mouse_press_event_anypoint_mode_2(event)
-                        self.model_apps.create_maps_anypoint_mode_2()
-                        self.anypoint_config.showing_config_mode_2()
+            if self.model_apps.state_recent_view == "AnypointView":
+                if self.ui.m1Button.isChecked():
+                    self.model_apps.label_original_mouse_press_event_anypoint_mode_1(event)
+                    self.model_apps.create_maps_anypoint_mode_1()
+                    self.anypoint_config.showing_config_mode_1()
+                else:
+                    self.model_apps.label_original_mouse_press_event_anypoint_mode_2(event)
+                    self.model_apps.create_maps_anypoint_mode_2()
+                    self.anypoint_config.showing_config_mode_2()
 
     def label_original_mouse_leave_event(self, event):
         self.model_apps.label_original_mouse_leave_event()
