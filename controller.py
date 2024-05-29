@@ -61,13 +61,12 @@ class SetupDialog(QtWidgets.QDialog):
         self.ui.m1Button.setChecked(True)
         self.ui.modeSelectGroup.buttonClicked.connect(self.mode_select_clicked)
         self.mode_select_clicked()
-        
-        self.ui.label_15.hide()
-        self.ui.comboBox_resolution_sources.hide()
 
         self.ui.checkBox.stateChanged.connect(self.checkbox_click)
         self.ui.checkBox.setChecked(True)
         self.checkbox_click()
+
+        self.set_resolution_sources()
         
         self.ui.topButton.clicked.connect(self.onclick_anypoint)
         self.ui.belowButton.clicked.connect(self.onclick_anypoint)
@@ -80,11 +79,11 @@ class SetupDialog(QtWidgets.QDialog):
         self.model_apps.state_rubberband = False
 
         # setup mouse events
-        # ui_setup.label_image_original.mouseReleaseEvent =
-        self.ui.label_image_original.mouseMoveEvent = lambda event: self.model_apps.label_original_mouse_move_event(self.ui.label_image_original, event)
-        self.ui.label_image_original.mousePressEvent = lambda event: self.model_apps.label_original_mouse_move_event(self.ui.label_image_original, event)
-        self.ui.label_image_original.leaveEvent = lambda event: self.model_apps.label_original_mouse_leave_event()
-        # ui_setup.label_image_original.mouseDoubleClickEvent =
+        self.ui.label_image_original.mouseReleaseEvent = self.label_original_mouse_release_event
+        self.ui.label_image_original.mouseMoveEvent = self.label_original_mouse_move_event
+        self.ui.label_image_original.mousePressEvent = self.label_original_mouse_press_event
+        self.ui.label_image_original.leaveEvent = self.label_original_mouse_leave_event
+        self.ui.label_image_original.mouseDoubleClickEvent = self.label_original_mouse_double_click_event
 
         self.ui.doubleSpinBox_alpha.valueChanged.connect(self.change_properties_anypoint)
         self.ui.doubleSpinBox_beta.valueChanged.connect(self.change_properties_anypoint)
@@ -192,7 +191,51 @@ class SetupDialog(QtWidgets.QDialog):
             self.model_apps.create_maps_anypoint_mode_2()
         self.model_apps.state_rubberband = False
         self.model_apps.update_file_config()
-        
+
+    def set_resolution_sources(self):
+        self.ui.comboBox_resolution_sources.blockSignals(True)
+        self.ui.comboBox_resolution_sources.clear()
+        self.ui.comboBox_resolution_sources.blockSignals(False)
+        if self.model_apps.resolution_option:
+            for item in self.model_apps.resolution_option:
+                self.ui.comboBox_resolution_sources.addItem(f"{str(item[0])} x {str(item[1])}")
+
+
+    def label_original_mouse_release_event(self, event):
+        if event.button() == QtCore.Qt.MouseButton.LeftButton:
+            pass
+        else:
+            self.menu_mouse_event(event, "label_original")
+
+    def label_original_mouse_move_event(self, event):
+        self.model_apps.label_original_mouse_move_event(self.ui.label_image_original, event)
+
+    def label_original_mouse_press_event(self, event):
+        if event.buttons() == QtCore.Qt.MouseButton.LeftButton:
+            if self.model_apps.state_rubberband:
+                print("under developing")
+            else:
+                if self.model_apps.state_recent_view == "AnypointView":
+                    if self.ui.m1Button.isChecked():
+                        self.model_apps.label_original_mouse_press_event_anypoint_mode_1(event)
+                        self.model_apps.create_maps_anypoint_mode_1()
+                        self.anypoint_config.showing_config_mode_1()
+                    else:
+                        self.model_apps.label_original_mouse_press_event_anypoint_mode_2(event)
+                        self.model_apps.create_maps_anypoint_mode_2()
+                        self.anypoint_config.showing_config_mode_2()
+
+    def label_original_mouse_leave_event(self, event):
+        self.model_apps.label_original_mouse_leave_event()
+
+    def label_original_mouse_double_click_event(self, event):
+        if self.model_apps.state_recent_view == "AnypointView":
+            if self.ui.m1Button.isChecked():
+                self.model_apps.label_original_mouse_double_click_anypoint_mode_1()
+                self.anypoint_config.showing_config_mode_1()
+            else:
+                self.model_apps.label_original_mouse_double_click_anypoint_mode_2()
+                self.anypoint_config.showing_config_mode_2()
 
     def update_label_image(self, ui_label: QtWidgets.QLabel, image, width: int = 300, scale_content: bool = False):
         self.model.show_image_to_label(ui_label, image, width = width, scale_content = scale_content)
