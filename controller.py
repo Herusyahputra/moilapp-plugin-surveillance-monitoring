@@ -289,8 +289,8 @@ class Controller(QtWidgets.QWidget):
         self.ui.addButton.clicked.connect(self.add_clicked)
         self.ui.fisheyeButton.clicked.connect(self.fisheye_clicked)
         self.ui.paramButton.clicked.connect(self.parameter_clicked)
-        self.ui.recordedButton.clicked.connect(self.recorded_clicked)
         self.ui.capturedButton.clicked.connect(self.captured_clicked)
+        self.ui.recordMonitorButton.setStyleSheet(self.model.style_pushbutton_play_pause_video())
 
         self.grid_manager: GridManager = GridManager()
 
@@ -320,8 +320,6 @@ class Controller(QtWidgets.QWidget):
         self.ui.line.setStyleSheet(self.model.style_line())
         self.ui.line_2.setStyleSheet(self.model.style_line())
         self.ui.line_3.setStyleSheet(self.model.style_line())
-
-        self.ui.recordMonitorButton.setStyleSheet(self.model.style_pushbutton_play_pause_video())
     
     def get_monitor_ui_by_idx(self, ui_idx) -> tuple[QtWidgets.QLabel, QtWidgets.QPushButton, QtWidgets.QPushButton, QtWidgets.QPushButton]:
         label: QtWidgets.QLabel               = getattr(self.ui, f"displayLab{ui_idx}")
@@ -442,7 +440,7 @@ class Controller(QtWidgets.QWidget):
     def recorded_clicked(self):
         print("INFO: \"recorded_clicked()\" function is STILL under development!")
 
-class Surveillance(PluginInterface):
+class SurveillanceMonitor(PluginInterface):
     def __init__(self):
         super().__init__()
         self.widget = None

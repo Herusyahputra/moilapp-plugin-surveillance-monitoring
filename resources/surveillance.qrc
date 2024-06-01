@@ -20,5 +20,6 @@
     <file>camera.png</file>
     <file>trash.png</file>
     <file>plus.png</file>
+    <file>minus-circle.png</file>
   </qresource>
 </RCC>
