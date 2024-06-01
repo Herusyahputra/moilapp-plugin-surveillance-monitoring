@@ -62,19 +62,6 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="paramButton">
-           <property name="minimumSize">
-            <size>
-             <width>150</width>
-             <height>40</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Camera Parameters</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="Line" name="line">
            <property name="maximumSize">
             <size>
@@ -88,7 +75,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="recordedButton">
+          <widget class="QPushButton" name="paramButton">
            <property name="minimumSize">
             <size>
              <width>150</width>
@@ -96,7 +83,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Recorded</string>
+            <string>Camera Parameters</string>
            </property>
           </widget>
          </item>
@@ -109,7 +96,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Captured</string>
+            <string>Gallery</string>
            </property>
           </widget>
          </item>
@@ -319,7 +306,7 @@
                </property>
                <property name="icon">
                 <iconset resource="resources/surveillance.qrc">
-                 <normaloff>:/icon/lens.png</normaloff>:/icon/lens.png</iconset>
+                 <normaloff>:/icon/camera.png</normaloff>:/icon/camera.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -355,7 +342,7 @@
                </property>
                <property name="icon">
                 <iconset resource="resources/surveillance.qrc">
-                 <normaloff>:/icon/trash.png</normaloff>:/icon/trash.png</iconset>
+                 <normaloff>:/icon/minus-circle.png</normaloff>:/icon/minus-circle.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -461,7 +448,7 @@
                </property>
                <property name="icon">
                 <iconset resource="resources/surveillance.qrc">
-                 <normaloff>:/icon/lens.png</normaloff>:/icon/lens.png</iconset>
+                 <normaloff>:/icon/camera.png</normaloff>:/icon/camera.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -497,7 +484,7 @@
                </property>
                <property name="icon">
                 <iconset resource="resources/surveillance.qrc">
-                 <normaloff>:/icon/trash.png</normaloff>:/icon/trash.png</iconset>
+                 <normaloff>:/icon/minus-circle.png</normaloff>:/icon/minus-circle.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -603,7 +590,7 @@
                </property>
                <property name="icon">
                 <iconset resource="resources/surveillance.qrc">
-                 <normaloff>:/icon/lens.png</normaloff>:/icon/lens.png</iconset>
+                 <normaloff>:/icon/camera.png</normaloff>:/icon/camera.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -639,7 +626,7 @@
                </property>
                <property name="icon">
                 <iconset resource="resources/surveillance.qrc">
-                 <normaloff>:/icon/trash.png</normaloff>:/icon/trash.png</iconset>
+                 <normaloff>:/icon/minus-circle.png</normaloff>:/icon/minus-circle.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -739,7 +726,7 @@
                </property>
                <property name="icon">
                 <iconset resource="resources/surveillance.qrc">
-                 <normaloff>:/icon/lens.png</normaloff>:/icon/lens.png</iconset>
+                 <normaloff>:/icon/camera.png</normaloff>:/icon/camera.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -775,7 +762,7 @@
                </property>
                <property name="icon">
                 <iconset resource="resources/surveillance.qrc">
-                 <normaloff>:/icon/trash.png</normaloff>:/icon/trash.png</iconset>
+                 <normaloff>:/icon/minus-circle.png</normaloff>:/icon/minus-circle.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -897,7 +884,7 @@
                </property>
                <property name="icon">
                 <iconset resource="resources/surveillance.qrc">
-                 <normaloff>:/icon/lens.png</normaloff>:/icon/lens.png</iconset>
+                 <normaloff>:/icon/camera.png</normaloff>:/icon/camera.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -933,7 +920,7 @@
                </property>
                <property name="icon">
                 <iconset resource="resources/surveillance.qrc">
-                 <normaloff>:/icon/trash.png</normaloff>:/icon/trash.png</iconset>
+                 <normaloff>:/icon/minus-circle.png</normaloff>:/icon/minus-circle.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -1033,7 +1020,7 @@
                </property>
                <property name="icon">
                 <iconset resource="resources/surveillance.qrc">
-                 <normaloff>:/icon/lens.png</normaloff>:/icon/lens.png</iconset>
+                 <normaloff>:/icon/camera.png</normaloff>:/icon/camera.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -1069,7 +1056,7 @@
                </property>
                <property name="icon">
                 <iconset resource="resources/surveillance.qrc">
-                 <normaloff>:/icon/trash.png</normaloff>:/icon/trash.png</iconset>
+                 <normaloff>:/icon/minus-circle.png</normaloff>:/icon/minus-circle.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -1169,7 +1156,7 @@
                </property>
                <property name="icon">
                 <iconset resource="resources/surveillance.qrc">
-                 <normaloff>:/icon/lens.png</normaloff>:/icon/lens.png</iconset>
+                 <normaloff>:/icon/camera.png</normaloff>:/icon/camera.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -1205,7 +1192,7 @@
                </property>
                <property name="icon">
                 <iconset resource="resources/surveillance.qrc">
-                 <normaloff>:/icon/trash.png</normaloff>:/icon/trash.png</iconset>
+                 <normaloff>:/icon/minus-circle.png</normaloff>:/icon/minus-circle.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -1311,7 +1298,7 @@
                </property>
                <property name="icon">
                 <iconset resource="resources/surveillance.qrc">
-                 <normaloff>:/icon/lens.png</normaloff>:/icon/lens.png</iconset>
+                 <normaloff>:/icon/camera.png</normaloff>:/icon/camera.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -1347,7 +1334,7 @@
                </property>
                <property name="icon">
                 <iconset resource="resources/surveillance.qrc">
-                 <normaloff>:/icon/trash.png</normaloff>:/icon/trash.png</iconset>
+                 <normaloff>:/icon/minus-circle.png</normaloff>:/icon/minus-circle.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -1394,32 +1381,6 @@
        <widget class="QFrame" name="frame">
         <layout class="QHBoxLayout" name="horizontalLayout_14">
          <item>
-          <widget class="QPushButton" name="recordButton">
-           <property name="minimumSize">
-            <size>
-             <width>50</width>
-             <height>45</height>
-            </size>
-           </property>
-           <property name="layoutDirection">
-            <enum>Qt::LeftToRight</enum>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="resources/surveillance.qrc">
-             <normaloff>:/icon/record.png</normaloff>:/icon/record.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QPushButton" name="rewindButton">
            <property name="minimumSize">
             <size>
@@ -1436,7 +1397,7 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>30</width>
+             <width>25</width>
              <height>30</height>
             </size>
            </property>
@@ -1459,7 +1420,7 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>30</width>
+             <width>25</width>
              <height>30</height>
             </size>
            </property>
@@ -1482,7 +1443,7 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>30</width>
+             <width>25</width>
              <height>30</height>
             </size>
            </property>
@@ -1505,7 +1466,7 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>30</width>
+             <width>25</width>
              <height>30</height>
             </size>
            </property>
@@ -1528,7 +1489,7 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>30</width>
+             <width>25</width>
              <height>30</height>
             </size>
            </property>
