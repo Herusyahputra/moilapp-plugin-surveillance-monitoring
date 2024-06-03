@@ -137,7 +137,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="resources/surveillance.qrc">
+            <iconset resource="../resources/surveillance.qrc">
              <normaloff>:/icon/record.png</normaloff>
              <normalon>:/icon/stop.png</normalon>:/icon/record.png</iconset>
            </property>
@@ -282,7 +282,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/setup.png</normaloff>:/icon/setup.png</iconset>
                </property>
                <property name="iconSize">
@@ -305,7 +305,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/camera.png</normaloff>:/icon/camera.png</iconset>
                </property>
                <property name="iconSize">
@@ -341,7 +341,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/minus-circle.png</normaloff>:/icon/minus-circle.png</iconset>
                </property>
                <property name="iconSize">
@@ -424,7 +424,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/setup.png</normaloff>:/icon/setup.png</iconset>
                </property>
                <property name="iconSize">
@@ -447,7 +447,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/camera.png</normaloff>:/icon/camera.png</iconset>
                </property>
                <property name="iconSize">
@@ -483,7 +483,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/minus-circle.png</normaloff>:/icon/minus-circle.png</iconset>
                </property>
                <property name="iconSize">
@@ -566,7 +566,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/setup.png</normaloff>:/icon/setup.png</iconset>
                </property>
                <property name="iconSize">
@@ -589,7 +589,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/camera.png</normaloff>:/icon/camera.png</iconset>
                </property>
                <property name="iconSize">
@@ -625,7 +625,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/minus-circle.png</normaloff>:/icon/minus-circle.png</iconset>
                </property>
                <property name="iconSize">
@@ -702,7 +702,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/setup.png</normaloff>:/icon/setup.png</iconset>
                </property>
                <property name="iconSize">
@@ -725,7 +725,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/camera.png</normaloff>:/icon/camera.png</iconset>
                </property>
                <property name="iconSize">
@@ -761,7 +761,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/minus-circle.png</normaloff>:/icon/minus-circle.png</iconset>
                </property>
                <property name="iconSize">
@@ -860,7 +860,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/setup.png</normaloff>:/icon/setup.png</iconset>
                </property>
                <property name="iconSize">
@@ -883,7 +883,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/camera.png</normaloff>:/icon/camera.png</iconset>
                </property>
                <property name="iconSize">
@@ -919,7 +919,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/minus-circle.png</normaloff>:/icon/minus-circle.png</iconset>
                </property>
                <property name="iconSize">
@@ -996,7 +996,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/setup.png</normaloff>:/icon/setup.png</iconset>
                </property>
                <property name="iconSize">
@@ -1019,7 +1019,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/camera.png</normaloff>:/icon/camera.png</iconset>
                </property>
                <property name="iconSize">
@@ -1055,7 +1055,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/minus-circle.png</normaloff>:/icon/minus-circle.png</iconset>
                </property>
                <property name="iconSize">
@@ -1132,7 +1132,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/setup.png</normaloff>:/icon/setup.png</iconset>
                </property>
                <property name="iconSize">
@@ -1155,7 +1155,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/camera.png</normaloff>:/icon/camera.png</iconset>
                </property>
                <property name="iconSize">
@@ -1191,7 +1191,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/minus-circle.png</normaloff>:/icon/minus-circle.png</iconset>
                </property>
                <property name="iconSize">
@@ -1274,7 +1274,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/setup.png</normaloff>:/icon/setup.png</iconset>
                </property>
                <property name="iconSize">
@@ -1297,7 +1297,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/camera.png</normaloff>:/icon/camera.png</iconset>
                </property>
                <property name="iconSize">
@@ -1333,7 +1333,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources/surveillance.qrc">
+                <iconset resource="../resources/surveillance.qrc">
                  <normaloff>:/icon/minus-circle.png</normaloff>:/icon/minus-circle.png</iconset>
                </property>
                <property name="iconSize">
@@ -1392,7 +1392,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="resources/surveillance.qrc">
+            <iconset resource="../resources/surveillance.qrc">
              <normaloff>:/icon/rewind.png</normaloff>:/icon/rewind.png</iconset>
            </property>
            <property name="iconSize">
@@ -1415,7 +1415,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="resources/surveillance.qrc">
+            <iconset resource="../resources/surveillance.qrc">
              <normaloff>:/icon/play.png</normaloff>:/icon/play.png</iconset>
            </property>
            <property name="iconSize">
@@ -1438,7 +1438,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="resources/surveillance.qrc">
+            <iconset resource="../resources/surveillance.qrc">
              <normaloff>:/icon/pause.png</normaloff>:/icon/pause.png</iconset>
            </property>
            <property name="iconSize">
@@ -1461,7 +1461,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="resources/surveillance.qrc">
+            <iconset resource="../resources/surveillance.qrc">
              <normaloff>:/icon/stop.png</normaloff>:/icon/stop.png</iconset>
            </property>
            <property name="iconSize">
@@ -1484,7 +1484,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="resources/surveillance.qrc">
+            <iconset resource="../resources/surveillance.qrc">
              <normaloff>:/icon/forward.png</normaloff>:/icon/forward.png</iconset>
            </property>
            <property name="iconSize">
@@ -1561,7 +1561,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="resources/surveillance.qrc"/>
+  <include location="../resources/surveillance.qrc"/>
  </resources>
  <connections/>
 </ui>
