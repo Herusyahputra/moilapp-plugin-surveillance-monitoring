@@ -13,7 +13,7 @@ from PyQt6 import QtWidgets, QtCore, QtGui
 class CustomStackedWidget(QtWidgets.QWidget):
     def __init__(self, widgets, rows=1, columns=1):
         super().__init__()
-        self.monitor = widgets
+        self.monitors = widgets
         self.rows = rows
         self.columns = columns
         self.initUI()
@@ -52,16 +52,16 @@ class CustomStackedWidget(QtWidgets.QWidget):
             self.stackedWidget.removeWidget(widget)
             widget.deleteLater()
         # Add widgets with the new grid size
-        for i in range(0, len(self.monitor), self.rows * self.columns):
+        for i in range(0, len(self.monitors), self.rows * self.columns):
             page = QtWidgets.QWidget()
             pageLayout = QtWidgets.QGridLayout(page)
             for j in range(self.rows * self.columns):
                 row, col = divmod(j, self.columns)
-                if i + j < len(self.monitor):
-                    pageLayout.addWidget(self.monitor[i + j], row, col)
+                if i + j < len(self.monitors):
+                    pageLayout.addWidget(self.monitors[i + j], row, col)
             page.setLayout(pageLayout)
             self.stackedWidget.addWidget(page)
-        if self.rows * self.columns == len(self.monitor):
+        if self.rows * self.columns == len(self.monitors):
             self.nextButton.hide()
             self.prevButton.hide()
         else:
@@ -115,7 +115,7 @@ class Controller(QtWidgets.QWidget):
         super().__init__()
 
         self.model = model
-
+        self.image_width = 340
         self.ui = Ui_Main()
         self.ui.setupUi(self)
         
@@ -177,10 +177,10 @@ class Controller(QtWidgets.QWidget):
     def get_monitor_ui_by_idx(self, ui_idx) -> tuple[QtWidgets.QLabel, QtWidgets.QPushButton, QtWidgets.QPushButton, QtWidgets.QPushButton]:
         label_recording: QtWidgets.QLabel     = getattr(self.ui_recoder, f"displayLab{ui_idx + 1}")
     
-        label: QtWidgets.QLabel               = self.grid_monitor.monitor[ui_idx].displayLab
-        setup_button: QtWidgets.QPushButton   = self.grid_monitor.monitor[ui_idx].setupButton
-        capture_button: QtWidgets.QPushButton = self.grid_monitor.monitor[ui_idx].captureButton
-        delete_button: QtWidgets.QPushButton  = self.grid_monitor.monitor[ui_idx].deleteButton
+        label: QtWidgets.QLabel               = self.grid_monitor.monitors[ui_idx].displayLab
+        setup_button: QtWidgets.QPushButton   = self.grid_monitor.monitors[ui_idx].setupButton
+        capture_button: QtWidgets.QPushButton = self.grid_monitor.monitors[ui_idx].captureButton
+        delete_button: QtWidgets.QPushButton  = self.grid_monitor.monitors[ui_idx].deleteButton
     
         return (label, label_recording, setup_button, capture_button, delete_button)
 
@@ -194,7 +194,7 @@ class Controller(QtWidgets.QWidget):
     def add_clicked(self):
         global EMPTY_SLOTS
         
-        ui_idx: int = self.model_apps_manager.get_empty_slots()
+        ui_idx: int = self.model_apps_manager.get_empty_model_apps()
         if ui_idx:
             ui_idx = ui_idx[0]
             label, label_recording, setup_button, capture_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
@@ -228,13 +228,13 @@ class Controller(QtWidgets.QWidget):
             setup_button.clicked.connect(lambda: self.setup_clicked(ui_idx, (source_type, cam_type, media_source, params_name)))
             delete_button.clicked.connect(lambda: self.delete_monitor(model_apps))
 
-            self.model_apps_manager.set_slot(ui_idx, model_apps)
+            self.model_apps_manager.set_model_apps(ui_idx, model_apps)
         
         EMPTY_SLOTS -= 1
 
     def setup_clicked(self, ui_idx: int, media_sources: tuple):
         label, label_recording, setup_button, capture_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
-        prev_model_apps: list = self.model_apps_manager.get_slot_by_index(ui_idx)
+        prev_model_apps: list = self.model_apps_manager.get_model_apps_by_index(ui_idx)
         model_apps: ModelApps = ModelApps()
         model_apps.update_file_config()
         model_apps.set_media_source(*media_sources)
@@ -250,10 +250,12 @@ class Controller(QtWidgets.QWidget):
         model_apps.create_image_result()
         setup_button.clicked.connect(lambda: self.setup_clicked(ui_idx, media_sources))
         delete_button.clicked.connect(lambda: self.delete_monitor(model_apps))
-        self.model_apps_manager.set_slot(ui_idx, model_apps)
+        self.model_apps_manager.set_model_apps(ui_idx, model_apps)
         del prev_model_apps
 
-    def update_label_image(self, ui_label, image, width: int = 340, scale_content: bool = False):
+    def update_label_image(self, ui_label, image, width: int = "Default", scale_content: bool = False):
+        if width == "Default":
+            width = self.image_width
         self.model.show_image_to_label(ui_label, image, width = width, scale_content = scale_content)
 
     def setup_monitor(self, model_apps: ModelApps) -> bool:
@@ -266,7 +268,7 @@ class Controller(QtWidgets.QWidget):
     def delete_monitor(self, model_apps: ModelApps):
         global EMPTY_SLOTS
         
-        ui_idx = self.model_apps_manager.get_index_of_slot(model_apps)
+        ui_idx = self.model_apps_manager.get_index_of_model_apps(model_apps)
         if ui_idx == -1: return
         
         label, label_recording, setup_button, capture_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
@@ -285,12 +287,12 @@ class Controller(QtWidgets.QWidget):
             model_apps.image_resize = None
             
             model_apps.reset_config()
-            if model_apps.cap is not None and (len(self.model_apps_manager.get_empty_slots()) == (MAX_MONITOR_INDEX - 1)):
+            if model_apps.cap is not None and (len(self.model_apps_manager.get_empty_model_apps()) == (MAX_MONITOR_INDEX - 1)):
                 try: model_apps.cap.close()
                 except: pass
                 model_apps.cap = None
 
-        self.model_apps_manager.clear_slot(ui_idx)
+        self.model_apps_manager.clear_model_apps(ui_idx)
         EMPTY_SLOTS += 1
 
     def gallery_clicked(self):
@@ -305,13 +307,18 @@ class Controller(QtWidgets.QWidget):
     
     def relayout_grid_clicked(self):
         if self.sender().objectName() == 'layoutOneByOneButton':
+            self.image_width = 340 * 4
             self.grid_monitor.setGridSize(1, 1)
         elif self.sender().objectName() == 'layoutOneByTwoButton':
+            self.image_width = 340 * 2
             self.grid_monitor.setGridSize(1, 2)
         elif self.sender().objectName() == 'layoutTwoByTwoButton':
+            self.image_width = 340 * 2
             self.grid_monitor.setGridSize(2, 2)
         elif self.sender().objectName() == 'layoutTwoByFourButton':
+            self.image_width = 340
             self.grid_monitor.setGridSize(2, 4)
+        [self.model_apps_manager.get_model_apps_by_index(idx).create_image_result() for idx in self.model_apps_manager.get_in_use_model_apps()]
         
 
 class SurveillanceMonitor(PluginInterface):

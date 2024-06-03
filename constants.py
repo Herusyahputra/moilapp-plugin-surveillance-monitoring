@@ -3,26 +3,26 @@ EMPTY_SLOTS: int = 8
 
 class ModelAppsManager:
     def __init__(self):
-        self.slots = [None] * 8
+        self.model_apps = [None] * 8
 
-    def get_index_of_slot(self, element) -> int:
+    def get_index_of_model_apps(self, element) -> int:
         try:
-            index: int = self.slots.index(element)
+            index: int = self.model_apps.index(element)
             return index
         except ValueError:
             return -1
 
-    def get_slot_by_index(self, index: int):
-        return self.slots[index] if (0 <= index <= len(self.slots)) else None
+    def get_model_apps_by_index(self, index: int):
+        return self.model_apps[index] if (0 <= index <= len(self.model_apps)) else None
 
-    def get_empty_slots(self) -> list:
-        return [i for i, slot in enumerate(self.slots) if slot is None]
+    def get_empty_model_apps(self) -> list:
+        return [i for i, slot in enumerate(self.model_apps) if slot is None]
 
-    def get_used_slots(self) -> list:
-        return [i for i, slot in enumerate(self.slots) if slot is not None]
+    def get_in_use_model_apps(self) -> list:
+        return [i for i, slot in enumerate(self.model_apps) if slot is not None]
 
-    def set_slot(self, index: int, element):
-        self.slots[index] = element if (0 <= index <= len(self.slots)) else None
+    def set_model_apps(self, index: int, element):
+        self.model_apps[index] = element if (0 <= index <= len(self.model_apps)) else None
 
-    def clear_slot(self, index: int):
-        self.slots[index] = None if (0 <= index <= len(self.slots)) else self.slots[index]
+    def clear_model_apps(self, index: int):
+        self.model_apps[index] = None if (0 <= index <= len(self.model_apps)) else self.model_apps[index]
