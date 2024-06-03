@@ -57,7 +57,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Raw Fisheye View</string>
+            <string>Show Original View</string>
            </property>
           </widget>
          </item>
