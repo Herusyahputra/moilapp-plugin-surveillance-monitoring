@@ -1,3 +1,4 @@
+# Global constants.
 MAX_MONITOR_INDEX: int  = 8
 EMPTY_SLOTS: int        = 8
 LABEL_IMAGE_WIDTH: int  = 340

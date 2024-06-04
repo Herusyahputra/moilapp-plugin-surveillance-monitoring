@@ -47,7 +47,10 @@ class SetupDialog(QtWidgets.QDialog):
         # setup mouse events
         self.ui.label_image_original.mouseReleaseEvent = self.label_original_mouse_release_event
         self.ui.label_image_original.mouseMoveEvent = self.label_original_mouse_move_event
-        # self.ui.label_image_original.mousePressEvent = self.label_original_mouse_press_event # this somehow has bugs
+        
+        # With this event, for some reason it's occuring some bugs.
+        # self.ui.label_image_original.mousePressEvent = self.label_original_mouse_press_event
+        
         self.ui.label_image_original.mousePressEvent = self.label_original_mouse_move_event
         self.ui.label_image_original.leaveEvent = self.label_original_mouse_leave_event
         self.ui.label_image_original.mouseDoubleClickEvent = self.label_original_mouse_double_click_event
@@ -201,7 +204,7 @@ class SetupDialog(QtWidgets.QDialog):
                 self.model_apps.label_original_mouse_double_click_anypoint_mode_2()
                 self.anypoint_config.showing_config_mode_2()
 
-    def update_label_image(self, ui_label: QtWidgets.QLabel, image, label_width: int = 300, label_scale_content: bool = False):
+    def update_label_image(self, ui_label: QtWidgets.QLabel, image, label_width: int = LABEL_IMAGE_WIDTH, label_scale_content: bool = False):
         self.model.show_image_to_label(ui_label, image, width = label_width, scale_content = label_scale_content)
 
     # get the slot and signal of the result image (rectilinear) so it can be connected and display it continously

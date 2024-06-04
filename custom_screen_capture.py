@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 
 class ScreenRecorder:
-    def __init__(self, frame, fps=RECORDING_FPS, filename='output.mp4'):
+    def __init__(self, frame, fps: float = RECORDING_FPS, filename: str = "output.mp4"):
         self.frame = frame
         self.fps = fps
         self.interval = int(1000 / fps)
