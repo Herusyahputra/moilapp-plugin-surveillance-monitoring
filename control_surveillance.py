@@ -3,7 +3,7 @@ from src.models.model_apps import Model, ModelApps
 from .custom_screen_capture import ScreenRecorder
 from .constants import *
 from .control_setup import SetupDialog
-from .views.ui_recoder import Ui_Recorder
+from .views.ui_recorder import Ui_Recorder
 from .views.ui_surveillance import Ui_Main
 from .views.ui_monitor import Ui_Monitor
 
@@ -101,6 +101,7 @@ class CustomWidget(QtWidgets.QWidget):
         super().__init__()
         self.installEventFilter(self)
         self.enable_hover = True
+        self.enable_drag_drop = False
         self.menuFrame = None
         self.scrollArea = None
         self.cur_index = '0'
@@ -117,18 +118,26 @@ class CustomWidget(QtWidgets.QWidget):
     def eventFilter(self, obj, event):
         if obj == self and self.enable_hover and self.menuFrame:
             if event.type() == QtCore.QEvent.Type.Enter:
+                self.menuFrame.setStyleSheet("background-color: rgba(0, 0, 0, 0);")
                 self.menuFrame.show()
             elif event.type() == QtCore.QEvent.Type.Leave:
                 self.menuFrame.hide()
         return super().eventFilter(obj, event)
-    
+
     def mousePressEvent(self, event):
-        if event.button() == QtCore.Qt.MouseButton.LeftButton:
+        if event.button() == QtCore.Qt.MouseButton.LeftButton and self.enable_drag_drop:
             drag = QtGui.QDrag(self)
             mime_data = QtCore.QMimeData()
             mime_data.setText(self.cur_index)
             drag.setMimeData(mime_data)
+
+            pixmap = self.grab()
+            drag.setPixmap(pixmap)
+            drag.setHotSpot(event.position().toPoint() - self.rect().topLeft())
+
+            self.hide()
             drag.exec(QtCore.Qt.DropAction.MoveAction)
+            self.show()
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasText():
@@ -171,7 +180,6 @@ class Controller(QtWidgets.QWidget):
         self.ui.fisheyeButton.clicked.connect(self.original_view_clicked)
         self.ui.paramButton.clicked.connect(self.parameter_clicked)
         self.ui.galleryButton.clicked.connect(self.gallery_clicked)
-        self.ui.recordMonitorButton.setStyleSheet(self.model.style_pushbutton_play_pause_video())
 
         widgets = []
         for i in range(16):
@@ -182,6 +190,7 @@ class Controller(QtWidgets.QWidget):
             ui_monitor.displayLab.setScaledContents(True)
             
             if i < 8:
+                widget.enable_drag_drop = True
                 widget.menuFrame = ui_monitor.menuFrame 
                 widget.captureButton = ui_monitor.captureButton
                 widget.setupButton = ui_monitor.setupButton
@@ -202,22 +211,29 @@ class Controller(QtWidgets.QWidget):
         self.ui.layoutTwoByFourButton.clicked.connect(self.relayout_grid_clicked)
         self.model_apps_manager = ModelAppsManager()
 
-        self.set_stylesheet()
-
-        self.ui_recoder = Ui_Recorder()
-        self.recoder_widget = QtWidgets.QWidget()
+        recorder_widgets = []
+        for i in range(8):
+            widget = CustomWidget()
+            ui_monitor = Ui_Monitor()
+            ui_monitor.setupUi(widget)
+            ui_monitor.menuFrame.hide()
+            ui_monitor.displayLab.setScaledContents(True)
+            widget.displayLab = ui_monitor.displayLab
+            widget.scrollArea = ui_monitor.scrollArea
+            recorder_widgets.append(widget)
+        self.recorder_widget = CustomStackedWidget(recorder_widgets, 2, 4)
         screen_geometry = QtWidgets.QApplication.primaryScreen().availableGeometry()
         screen_width = screen_geometry.width()
         screen_height = screen_geometry.height()
-        self.recoder_widget.setMinimumSize(screen_width, screen_height)
-        self.recoder_widget.setMaximumSize(screen_width, screen_height)
-        self.recoder_widget.showMaximized()
-        self.recoder_widget.hide()
-        self.ui_recoder.setupUi(self.recoder_widget)
-        self.recorder = ScreenRecorder(self.recoder_widget)
-
+        self.recorder_widget.setMinimumSize(screen_width, screen_height)
+        self.recorder_widget.setMaximumSize(screen_width, screen_height)
+        self.recorder_widget.showMaximized()
+        self.recorded_image_width = round((screen_width // 4) / 20) * 20
+        # self.recorder_widget.hide()
+        self.recorder = ScreenRecorder(self.recorder_widget)
         self.ui.recordMonitorButton.clicked.connect(self.start_stop_recording)
         [monitor.swap_signal.connect(self.handle_swapping) for monitor in self.grid_monitor.monitors]
+        self.set_stylesheet()
 
     # find every QPushButton, QLabel, QScrollArea, and Line, this works because this class is a subclass of QWidget
     def set_stylesheet(self):
@@ -228,9 +244,12 @@ class Controller(QtWidgets.QWidget):
         self.ui.line.setStyleSheet(self.model.style_line())
         self.ui.line_2.setStyleSheet(self.model.style_line())
         self.ui.line_3.setStyleSheet(self.model.style_line())
+        self.ui.recordMonitorButton.setStyleSheet(self.model.style_pushbutton_play_pause_video())
+        self.recorder_widget.setStyleSheet('background-color: black;')
+        [label.setStyleSheet('background-color: black;') for label in self.recorder_widget.findChildren(QtWidgets.QLabel)]
     
-    def get_monitor_ui_by_idx(self, ui_idx) -> tuple[QtWidgets.QLabel, QtWidgets.QLabel, QtWidgets.QLabel, QtWidgets.QPushButton, QtWidgets.QPushButton, QtWidgets.QPushButton]:
-        label_recording: QtWidgets.QLabel     = getattr(self.ui_recoder, f"displayLab{ui_idx + 1}")
+    def get_monitor_ui_by_idx(self, ui_idx) -> tuple[QtWidgets.QLabel, QtWidgets.QLabel, QtWidgets.QPushButton, QtWidgets.QPushButton, QtWidgets.QPushButton]:
+        label_recording: QtWidgets.QLabel     = self.recorder_widget.monitors[ui_idx].displayLab
         label: QtWidgets.QLabel               = self.grid_monitor.monitors[ui_idx].displayLab
         setup_button: QtWidgets.QPushButton   = self.grid_monitor.monitors[ui_idx].setupButton
         capture_button: QtWidgets.QPushButton = self.grid_monitor.monitors[ui_idx].captureButton
@@ -291,7 +310,7 @@ class Controller(QtWidgets.QWidget):
             # self.update_label_image(label_original, model_apps.image_resize.copy()) # no crosshair but won't update video
             model_apps.set_draw_polygon = False
             model_apps.image_result.connect(lambda img: self.update_label_image(label, img))
-            model_apps.image_result.connect(lambda img: self.update_label_image(label_recording, img))
+            model_apps.image_result.connect(lambda img: self.update_label_image(label_recording, img, width=self.recorded_image_width))
             model_apps.create_image_result()
             setup_button.clicked.connect(lambda: self.setup_clicked(ui_idx, media_sources))
             delete_button.clicked.connect(lambda: self.delete_monitor(model_apps))
@@ -359,12 +378,16 @@ class Controller(QtWidgets.QWidget):
     def relayout_grid_clicked(self):
         if self.sender().objectName() == 'layoutOneByOneButton':
             self.grid_monitor.setGridSize(1, 1)
+            self.grid_original_monitor.setGridSize(1, 1)
         elif self.sender().objectName() == 'layoutOneByTwoButton':
             self.grid_monitor.setGridSize(1, 2)
+            self.grid_original_monitor.setGridSize(1, 2)
         elif self.sender().objectName() == 'layoutTwoByTwoButton':
             self.grid_monitor.setGridSize(2, 2)
+            self.grid_original_monitor.setGridSize(2, 2)
         elif self.sender().objectName() == 'layoutTwoByFourButton':
             self.grid_monitor.setGridSize(2, 4)
+            self.grid_original_monitor.setGridSize(2, 4)
             
         self.image_width = self.grid_monitor.monitors[0].get_width()
         self.image_width = round(self.image_width / 20) * 20
@@ -376,16 +399,14 @@ class Controller(QtWidgets.QWidget):
         self.model_apps_manager.model_apps[sender], self.model_apps_manager.model_apps[receiver] = self.model_apps_manager.model_apps[receiver], self.model_apps_manager.model_apps[sender]
         self.grid_monitor.monitors[sender], self.grid_monitor.monitors[receiver] = self.grid_monitor.monitors[receiver], self.grid_monitor.monitors[sender]
         self.grid_original_monitor.monitors[sender], self.grid_original_monitor.monitors[receiver] = self.grid_original_monitor.monitors[receiver], self.grid_original_monitor.monitors[sender]
+        self.recorder_widget.monitors[sender], self.recorder_widget.monitors[receiver] = self.recorder_widget.monitors[receiver], self.recorder_widget.monitors[sender]
         self.grid_monitor.updateStackedWidget()
         self.grid_monitor.updateButtons()
         self.grid_original_monitor.updateStackedWidget()
         self.grid_original_monitor.updateButtons()
-            
-        # if self.model_apps_manager.get_model_apps_by_index(sender) is not None and \
-        #     self.model_apps_manager.get_model_apps_by_index(receiver) is not None:
-        #     print('Success moved!')
-        # else:
-        #     print("Can't move")
+        self.recorder_widget.updateStackedWidget()
+        self.recorder_widget.updateButtons()
+
 
 class SurveillanceMonitor(PluginInterface):
     def __init__(self):
