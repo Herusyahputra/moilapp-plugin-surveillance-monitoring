@@ -1,7 +1,7 @@
 from PyQt6 import QtWidgets, QtCore, QtGui
 from src.models.model_apps import Model, ModelApps
 from src.controllers.control_anypoint import AnypointConfig
-from .views.ui_setup import Ui_Setup
+from .views.setup_ui import Ui_Setup
 from .constants import *
 
 # for the setup dialog

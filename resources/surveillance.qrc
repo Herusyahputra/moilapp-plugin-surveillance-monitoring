@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="icon">
+    <file>duplicate.png</file>
     <file>close.png</file>
     <file>fullscreen.png</file>
     <file>lens.png</file>

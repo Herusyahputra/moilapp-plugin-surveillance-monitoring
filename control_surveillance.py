@@ -3,9 +3,9 @@ from src.models.model_apps import Model, ModelApps
 from .custom_screen_capture import ScreenRecorder
 from .constants import *
 from .control_setup import SetupDialog
-from .views.ui_recorder import Ui_Recorder
-from .views.ui_surveillance import Ui_Main
-from .views.ui_monitor import Ui_Monitor
+from .views.recorder_ui import Ui_Recorder
+from .views.surveillance_ui import Ui_Main
+from .views.monitor_ui import Ui_Monitor
 
 from PyQt6 import QtWidgets, QtCore, QtGui
 LATEST_MOVED_WIDGET: list[dict[str, int, None]] = [None] * MAX_MONITOR_INDEX
@@ -100,7 +100,7 @@ class CustomWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self.installEventFilter(self)
-        self.enable_hover = True
+        self.enable_hover = False
         self.enable_drag_drop = False
         self.menuFrame = None
         self.scrollArea = None
@@ -118,7 +118,6 @@ class CustomWidget(QtWidgets.QWidget):
     def eventFilter(self, obj, event):
         if obj == self and self.enable_hover and self.menuFrame:
             if event.type() == QtCore.QEvent.Type.Enter:
-                self.menuFrame.setStyleSheet("background-color: rgba(0, 0, 0, 0);")
                 self.menuFrame.show()
             elif event.type() == QtCore.QEvent.Type.Leave:
                 self.menuFrame.hide()
@@ -163,6 +162,10 @@ class CustomWidget(QtWidgets.QWidget):
                     break
                 except TypeError: pass
             
+            
+            # print(f'Moving Monitor {sender} into Monitor {receiver}')
+
+
             # print(f'Moving Monitor {sender} into Monitor {receiver}')
 
         print("Widgets:", LATEST_MOVED_WIDGET)
@@ -191,6 +194,7 @@ class Controller(QtWidgets.QWidget):
             
             if i < 8:
                 widget.enable_drag_drop = True
+                widget.enable_hover = True
                 widget.menuFrame = ui_monitor.menuFrame 
                 widget.captureButton = ui_monitor.captureButton
                 widget.setupButton = ui_monitor.setupButton
@@ -229,7 +233,7 @@ class Controller(QtWidgets.QWidget):
         self.recorder_widget.setMaximumSize(screen_width, screen_height)
         self.recorder_widget.showMaximized()
         self.recorded_image_width = round((screen_width // 4) / 20) * 20
-        # self.recorder_widget.hide()
+        self.recorder_widget.hide()
         self.recorder = ScreenRecorder(self.recorder_widget)
         self.ui.recordMonitorButton.clicked.connect(self.start_stop_recording)
         [monitor.swap_signal.connect(self.handle_swapping) for monitor in self.grid_monitor.monitors]
