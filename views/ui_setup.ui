@@ -702,7 +702,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset resource="resources/surveillance.qrc">
+                     <iconset resource="../resources/surveillance.qrc">
                       <normaloff>:/icon/left.png</normaloff>:/icon/left.png</iconset>
                     </property>
                    </widget>
@@ -756,7 +756,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset resource="resources/surveillance.qrc">
+                     <iconset resource="../resources/surveillance.qrc">
                       <normaloff>:/icon/up.png</normaloff>:/icon/up.png</iconset>
                     </property>
                    </widget>
@@ -779,7 +779,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset resource="resources/surveillance.qrc">
+                     <iconset resource="../resources/surveillance.qrc">
                       <normaloff>:/icon/center.png</normaloff>:/icon/center.png</iconset>
                     </property>
                    </widget>
@@ -802,7 +802,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset resource="resources/surveillance.qrc">
+                     <iconset resource="../resources/surveillance.qrc">
                       <normaloff>:/icon/down.png</normaloff>:/icon/down.png</iconset>
                     </property>
                    </widget>
@@ -850,7 +850,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset resource="resources/surveillance.qrc">
+                     <iconset resource="../resources/surveillance.qrc">
                       <normaloff>:/icon/right.png</normaloff>:/icon/right.png</iconset>
                     </property>
                    </widget>
@@ -921,7 +921,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="resources/surveillance.qrc"/>
+  <include location="../resources/surveillance.qrc"/>
  </resources>
  <connections/>
  <buttongroups>
