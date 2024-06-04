@@ -104,7 +104,7 @@ class CustomWidget(QtWidgets.QWidget):
         self.scrollArea = None
         self.cur_index = '0'
 
-        self.setMinimumSize(QtCore.QSize(340, 260))
+        self.setMinimumSize(QtCore.QSize(LABEL_IMAGE_WIDTH, LABEL_IMAGE_HEIGHT))
         self.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.setAcceptDrops(True)
     
@@ -172,7 +172,7 @@ class Controller(QtWidgets.QWidget):
             
             widgets.append(widget)
         
-        self.image_width = 340
+        self.image_width = LABEL_IMAGE_WIDTH
     
         self.grid_monitor = CustomStackedWidget(widgets[:8], 2, 4)
         self.grid_original_monitor = CustomStackedWidget(widgets[8:], 2, 4)
@@ -263,7 +263,7 @@ class Controller(QtWidgets.QWidget):
             model_apps.set_media_source(*media_sources)
 
             return_status = self.setup_monitor(model_apps)
-            if return_status is False:
+            if return_status is False and prev_model_apps is None:
                 del model_apps
                 return
             
