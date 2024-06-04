@@ -204,8 +204,8 @@ class SetupDialog(QtWidgets.QDialog):
                 self.model_apps.label_original_mouse_double_click_anypoint_mode_2()
                 self.anypoint_config.showing_config_mode_2()
 
-    def update_label_image(self, ui_label: QtWidgets.QLabel, image, label_width: int = LABEL_IMAGE_WIDTH, label_scale_content: bool = False):
-        self.model.show_image_to_label(ui_label, image, width = label_width, scale_content = label_scale_content)
+    def update_label_image(self, ui_label: QtWidgets.QLabel, image, width: int = LABEL_IMAGE_WIDTH, scale_content: bool = False):
+        self.model.show_image_to_label(ui_label, image, width = width, scale_content = scale_content)
 
     # get the slot and signal of the result image (rectilinear) so it can be connected and display it continously
     def setup_result_signal(self, slot: QtCore.pyqtSlot, signal: QtCore.pyqtSignal):
@@ -236,10 +236,12 @@ class SetupDialog(QtWidgets.QDialog):
             try: self.model_apps.cap.close()
             except: pass
             self.model_apps.cap = None
-        self.reject(); self.close()
+        self.reject()
+        self.close()
 
     def accept_function(self):
-        self.accept(); self.close()
+        self.accept()
+        self.close()
 
     def disconnect_signals(self):
         self.result_signal.disconnect(self.result_slot)
