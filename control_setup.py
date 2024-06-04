@@ -14,8 +14,8 @@ class SetupDialog(QtWidgets.QDialog):
         self.ui.okButton.clicked.connect(self.accept_function)
         self.ui.cancelButton.clicked.connect(self.reject_function)
         
-        self.model: Model = Model()
-        self.model_apps: ModelApps = model_apps
+        self.model = Model()
+        self.model_apps = model_apps
         self.anypoint_config = AnypointConfig(self.ui)
 
         # setup and gracefully close the slots and signals of ModelApps (image_result and signal_image_original)
@@ -60,8 +60,8 @@ class SetupDialog(QtWidgets.QDialog):
         self.set_stylesheet()
 
     def set_stylesheet(self):
-        self.ui.label_title_original.setStyleSheet(self.model.style_label())
-        self.ui.label_title_image_result.setStyleSheet(self.model.style_label())
+        # self.ui.label_title_original.setStyleSheet(self.model.style_label_title())
+        # self.ui.label_title_image_result.setStyleSheet(self.model.style_label_title())
         self.ui.label_image_original.setStyleSheet(self.model.style_label())
         self.ui.label_image_result.setStyleSheet(self.model.style_label())
         self.ui.topButton.setStyleSheet(self.model.style_pushbutton())

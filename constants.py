@@ -1,5 +1,5 @@
-MAX_MONITOR_INDEX: int = 8
-EMPTY_SLOTS: int = 8
+MAX_MONITOR_INDEX = 8
+EMPTY_SLOTS = 8
 
 class ModelAppsManager:
     def __init__(self):
