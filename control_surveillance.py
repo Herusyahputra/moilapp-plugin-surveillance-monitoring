@@ -291,8 +291,9 @@ class Controller(QtWidgets.QWidget):
         EMPTY_SLOTS -= 1
         print(LATEST_MOVED_WIDGET)
 
-    def setup_clicked(self, ui_idx: int, media_sources: tuple):
-        prev_model_apps: list = self.model_apps_manager.get_model_apps_by_index(ui_idx)
+    def setup_clicked(self, media_sources: tuple):
+        ui_idx = self.grid_monitor.monitors.index(self.sender().parent().parent())
+        prev_model_apps: ModelApps = self.model_apps_manager.get_model_apps_by_index(ui_idx)
         self.connect_monitor(ui_idx, media_sources, prev_model_apps)
 
     def connect_monitor(self, ui_idx: int, media_sources: tuple, prev_model_apps: Optional[ModelApps] = False):
@@ -316,7 +317,7 @@ class Controller(QtWidgets.QWidget):
             model_apps.image_result.connect(lambda img: self.update_label_image(label, img))
             model_apps.image_result.connect(lambda img: self.update_label_image(label_recording, img, width=self.recorded_image_width))
             model_apps.create_image_result()
-            setup_button.clicked.connect(lambda: self.setup_clicked(ui_idx, media_sources))
+            setup_button.clicked.connect(lambda: self.setup_clicked(media_sources))
             delete_button.clicked.connect(lambda: self.delete_monitor(model_apps))
             self.model_apps_manager.set_model_apps(ui_idx, model_apps)
 
