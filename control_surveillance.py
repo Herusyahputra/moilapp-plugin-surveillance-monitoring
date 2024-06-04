@@ -9,9 +9,8 @@ from .views.ui_monitor import Ui_Monitor
 
 from PyQt6 import QtWidgets, QtCore, QtGui
 
-
 class CustomStackedWidget(QtWidgets.QWidget):
-    def __init__(self, widgets, rows=1, columns=1):
+    def __init__(self, widgets, rows: int = 1, columns: int = 1):
         super().__init__()
         self.monitors = widgets
         self.rows = rows
@@ -22,6 +21,7 @@ class CustomStackedWidget(QtWidgets.QWidget):
         self.stackedPages = QtWidgets.QStackedWidget()
         self.currentIndex = 0
 
+        # Add widgets to the QStackedWidget
         # Create navigation buttons
         self.prevButton = QtWidgets.QPushButton("Previous")
         self.nextButton = QtWidgets.QPushButton("Next")
@@ -50,6 +50,7 @@ class CustomStackedWidget(QtWidgets.QWidget):
             widget = self.stackedPages.widget(0)
             self.stackedPages.removeWidget(widget)
             widget.deleteLater()
+            
         # Add widgets with the new grid size
         for i in range(0, len(self.monitors), self.rows * self.columns):
             page = QtWidgets.QWidget()
@@ -58,6 +59,18 @@ class CustomStackedWidget(QtWidgets.QWidget):
                 row, col = divmod(j, self.columns)
                 if i + j < len(self.monitors):
                     pageLayout.addWidget(self.monitors[i + j], row, col)
+                    
+            page.setLayout(pageLayout)
+            self.stackedWidget.addWidget(page)
+            
+        if self.rows * self.columns == len(self.monitors): self.nextButton.hide(); self.prevButton.hide()
+        else: self.nextButton.show(); self.prevButton.show()
+
+    def showPrevious(self):
+        self.currentIndex -= 1
+        if self.currentIndex < 0: self.currentIndex = self.stackedWidget.count() - 1
+        self.stackedWidget.setCurrentIndex(self.currentIndex)
+
                     self.monitors[i + j].cur_index = str(i + j)
             page.setLayout(pageLayout)
             self.stackedPages.addWidget(page)
@@ -78,6 +91,10 @@ class CustomStackedWidget(QtWidgets.QWidget):
 
     def showNext(self):
         self.currentIndex += 1
+
+        if self.currentIndex >= self.stackedWidget.count(): self.currentIndex = 0
+        self.stackedWidget.setCurrentIndex(self.currentIndex)
+
         if self.currentIndex >= self.stackedPages.count():
             self.currentIndex = 0
         self.stackedPages.setCurrentIndex(self.currentIndex)
@@ -104,7 +121,7 @@ class CustomWidget(QtWidgets.QWidget):
         self.scrollArea = None
         self.cur_index = '0'
 
-        self.setMinimumSize(QtCore.QSize(340, 260))
+        self.setMinimumSize(QtCore.QSize(LABEL_IMAGE_WIDTH, LABEL_IMAGE_HEIGHT))
         self.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.setAcceptDrops(True)
     
@@ -114,11 +131,16 @@ class CustomWidget(QtWidgets.QWidget):
             if w is not None: return w
 
     def eventFilter(self, obj, event):
+        if obj == self and self.enable_filter and self.menuFrame:
+            if event.type() == QtCore.QEvent.Type.Enter: self.menuFrame.show()
+            elif event.type() == QtCore.QEvent.Type.Leave: self.menuFrame.hide()
+
         if obj == self and self.enable_hover and self.menuFrame:
             if event.type() == QtCore.QEvent.Type.Enter:
                 self.menuFrame.show()
             elif event.type() == QtCore.QEvent.Type.Leave:
                 self.menuFrame.hide()
+                
         return super().eventFilter(obj, event)
     
     def mousePressEvent(self, event):
@@ -145,6 +167,7 @@ class Controller(QtWidgets.QWidget):
         super().__init__()
 
         self.model = model
+        self.image_width = LABEL_IMAGE_WIDTH
         self.ui = Ui_Main()
         self.ui.setupUi(self)
         
@@ -167,9 +190,13 @@ class Controller(QtWidgets.QWidget):
                 widget.captureButton = ui_monitor.captureButton
                 widget.setupButton = ui_monitor.setupButton
                 widget.deleteButton = ui_monitor.deleteButton
+                
             widget.displayLab = ui_monitor.displayLab
+            widget.captureButton = ui_monitor.captureButton
+            widget.setupButton = ui_monitor.setupButton
+            widget.deleteButton = ui_monitor.deleteButton
+            widget.menuFrame.hide()
             widget.scrollArea = ui_monitor.scrollArea
-            
             widgets.append(widget)
         
         self.image_width = 340
@@ -195,9 +222,9 @@ class Controller(QtWidgets.QWidget):
         self.recoder_widget.setMaximumSize(screen_width, screen_height)
         self.recoder_widget.showMaximized()
         self.recoder_widget.hide()
-        self.ui_recoder.setupUi(self.recoder_widget)
+        
         self.recorder = ScreenRecorder(self.recoder_widget)
-
+        self.ui_recoder.setupUi(self.recoder_widget)
         self.ui.recordMonitorButton.clicked.connect(self.start_stop_recording)
 
         [monitor.swap_signal.connect(self.handle_swapping) for monitor in self.grid_monitor.monitors]
@@ -214,21 +241,15 @@ class Controller(QtWidgets.QWidget):
     
     def get_monitor_ui_by_idx(self, ui_idx) -> tuple[QtWidgets.QLabel, QtWidgets.QLabel, QtWidgets.QPushButton, QtWidgets.QPushButton, QtWidgets.QPushButton]:
         label_recording: QtWidgets.QLabel     = getattr(self.ui_recoder, f"displayLab{ui_idx + 1}")
-    
         label: QtWidgets.QLabel               = self.grid_monitor.monitors[ui_idx].displayLab
         setup_button: QtWidgets.QPushButton   = self.grid_monitor.monitors[ui_idx].setupButton
         capture_button: QtWidgets.QPushButton = self.grid_monitor.monitors[ui_idx].captureButton
         delete_button: QtWidgets.QPushButton  = self.grid_monitor.monitors[ui_idx].deleteButton
-        label_original: QtWidgets.QLabel      = self.grid_original_monitor.monitors[ui_idx].displayLab
-    
-        return (label, label_original, label_recording, setup_button, capture_button, delete_button)
+        return (label, label_recording, setup_button, capture_button, delete_button)
 
     def start_stop_recording(self):
-        if self.ui.recordMonitorButton.isChecked():
-            self.recorder.start()
-        else:
-            self.recorder.stop()
-            self.recorder.save_video()
+        if self.ui.recordMonitorButton.isChecked(): self.recorder.start()
+        else: self.recorder.stop(); self.recorder.save_video()
 
     def add_clicked(self):
         global EMPTY_SLOTS
@@ -278,18 +299,35 @@ class Controller(QtWidgets.QWidget):
             model_apps.create_image_result()
             setup_button.clicked.connect(lambda: self.setup_clicked(ui_idx, media_sources))
             delete_button.clicked.connect(lambda: self.delete_monitor(model_apps))
-
             self.model_apps_manager.set_model_apps(ui_idx, model_apps)
+        
+        EMPTY_SLOTS -= 1
+
+    def setup_clicked(self, ui_idx: int, media_sources: tuple):
+        label, label_recording, setup_button, capture_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
+        prev_model_apps: list = self.model_apps_manager.get_model_apps_by_index(ui_idx)
+        model_apps: ModelApps = ModelApps()
+        model_apps.update_file_config()
+        model_apps.set_media_source(*media_sources)
+
+        self.setup_monitor(model_apps)
+        self.delete_monitor(prev_model_apps)
+
+        model_apps.image_result.connect(lambda img: self.update_label_image(label, img))
+        model_apps.image_result.connect(lambda img: self.update_label_image(label_recording, img))
+        model_apps.create_image_result()
+        setup_button.clicked.connect(lambda: self.setup_clicked(ui_idx, media_sources))
+        delete_button.clicked.connect(lambda: self.delete_monitor(model_apps))
+        self.model_apps_manager.set_model_apps(ui_idx, model_apps)
+        del prev_model_apps
 
     def update_label_image(self, ui_label, image, width: int = "Default", scale_content: bool = False):
-        if width == "Default":
-            width = self.image_width
+        if width == "Default": width = self.image_width
         self.model.show_image_to_label(ui_label, image, width = width, scale_content = scale_content)
 
     def setup_monitor(self, model_apps: ModelApps) -> bool:
-        dialog = SetupDialog(model_apps)
-        
-        result = dialog.exec()
+        dialog: SetupDialog = SetupDialog(model_apps)
+        result: int = dialog.exec()
         del dialog
         return True if (result == QtWidgets.QDialog.DialogCode.Accepted) else False
 
@@ -327,9 +365,28 @@ class Controller(QtWidgets.QWidget):
 
     def gallery_clicked(self):
         print("INFO: \"gallery_clicked()\" function is STILL under development!")
+    
+    def fisheye_clicked(self):
+        print("INFO: \"fisheye_clicked()\" function is STILL under development!")
 
     def parameter_clicked(self):
         self.model.form_camera_parameter()
+        
+    def relayout_grid_clicked(self):
+        if self.sender().objectName() == 'layoutOneByOneButton':
+            self.image_width = LABEL_IMAGE_WIDTH * 4
+            self.grid_monitor.setGridSize(1, 1)
+        elif self.sender().objectName() == 'layoutOneByTwoButton':
+            self.image_width = LABEL_IMAGE_WIDTH * 2
+            self.grid_monitor.setGridSize(1, 2)
+        elif self.sender().objectName() == 'layoutTwoByTwoButton':
+            self.image_width = LABEL_IMAGE_WIDTH * 2
+            self.grid_monitor.setGridSize(2, 2)
+        elif self.sender().objectName() == 'layoutTwoByFourButton':
+            self.image_width = LABEL_IMAGE_WIDTH
+            self.grid_monitor.setGridSize(2, 4)
+            
+        [self.model_apps_manager.get_model_apps_by_index(idx).create_image_result() for idx in self.model_apps_manager.get_in_use_model_apps()]
 
     def original_view_clicked(self):
         if self.ui.stackedWidget.currentIndex():
@@ -369,8 +426,6 @@ class Controller(QtWidgets.QWidget):
         #     print('Success moved!')
         # else:
         #     print("Can't move")
-
-        
 
 class SurveillanceMonitor(PluginInterface):
     def __init__(self):
