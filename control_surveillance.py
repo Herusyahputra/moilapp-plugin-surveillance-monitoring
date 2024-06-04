@@ -58,6 +58,7 @@ class CustomStackedWidget(QtWidgets.QWidget):
                 row, col = divmod(j, self.columns)
                 if i + j < len(self.monitors):
                     pageLayout.addWidget(self.monitors[i + j], row, col)
+                    self.monitors[i + j].cur_index = str(i + j)
             page.setLayout(pageLayout)
             self.stackedPages.addWidget(page)
         
@@ -93,15 +94,24 @@ class CustomStackedWidget(QtWidgets.QWidget):
         self.updateButtons()
         
 class CustomWidget(QtWidgets.QWidget):
+    swap_signal = QtCore.pyqtSignal(str, str)
+
     def __init__(self):
         super().__init__()
         self.installEventFilter(self)
         self.enable_hover = True
         self.menuFrame = None
         self.scrollArea = None
+        self.cur_index = '0'
 
         self.setMinimumSize(QtCore.QSize(340, 260))
         self.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.setAcceptDrops(True)
+    
+    def get_width(self) -> int:
+        if self.scrollArea:
+            w = self.scrollArea.width()
+            if w is not None: return w
 
     def eventFilter(self, obj, event):
         if obj == self and self.enable_hover and self.menuFrame:
@@ -111,10 +121,24 @@ class CustomWidget(QtWidgets.QWidget):
                 self.menuFrame.hide()
         return super().eventFilter(obj, event)
     
-    def get_width(self) -> int:
-        if self.scrollArea:
-            w = self.scrollArea.width()
-            if w is not None: return w
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.MouseButton.LeftButton:
+            drag = QtGui.QDrag(self)
+            mime_data = QtCore.QMimeData()
+            mime_data.setText(self.cur_index)
+            drag.setMimeData(mime_data)
+            drag.exec(QtCore.Qt.DropAction.MoveAction)
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasText():
+            event.acceptProposedAction()
+
+    def dropEvent(self, event):
+        if event.mimeData().hasText():
+            sender = event.mimeData().text()
+            receiver = self.cur_index
+            self.swap_signal.emit(sender, receiver)
+            print(f'Moving Monitor {sender} into Monitor {receiver}')
 
 class Controller(QtWidgets.QWidget):
     def __init__(self, model: Model):
@@ -175,6 +199,8 @@ class Controller(QtWidgets.QWidget):
         self.recorder = ScreenRecorder(self.recoder_widget)
 
         self.ui.recordMonitorButton.clicked.connect(self.start_stop_recording)
+
+        [monitor.swap_signal.connect(self.handle_swapping) for monitor in self.grid_monitor.monitors]
 
     # find every QPushButton, QLabel, QScrollArea, and Line, this works because this class is a subclass of QWidget
     def set_stylesheet(self):
@@ -326,6 +352,24 @@ class Controller(QtWidgets.QWidget):
         self.image_width = self.grid_monitor.monitors[0].get_width()
         self.image_width = round(self.image_width / 20) * 20
         [self.model_apps_manager.get_model_apps_by_index(idx).create_image_result() for idx in self.model_apps_manager.get_in_use_model_apps()]
+
+    def handle_swapping(self, sender, receiver):
+        sender = int(sender)
+        receiver = int(receiver)
+        self.model_apps_manager.model_apps[sender], self.model_apps_manager.model_apps[receiver] = self.model_apps_manager.model_apps[receiver], self.model_apps_manager.model_apps[sender]
+        self.grid_monitor.monitors[sender], self.grid_monitor.monitors[receiver] = self.grid_monitor.monitors[receiver], self.grid_monitor.monitors[sender]
+        self.grid_original_monitor.monitors[sender], self.grid_original_monitor.monitors[receiver] = self.grid_original_monitor.monitors[receiver], self.grid_original_monitor.monitors[sender]
+        self.grid_monitor.updateStackedWidget()
+        self.grid_monitor.updateButtons()
+        self.grid_original_monitor.updateStackedWidget()
+        self.grid_original_monitor.updateButtons()
+        
+        # if self.model_apps_manager.get_model_apps_by_index(sender) is not None and \
+        #     self.model_apps_manager.get_model_apps_by_index(receiver) is not None:
+        #     print('Success moved!')
+        # else:
+        #     print("Can't move")
+
         
 
 class SurveillanceMonitor(PluginInterface):
