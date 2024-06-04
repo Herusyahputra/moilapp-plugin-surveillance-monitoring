@@ -82,7 +82,7 @@ class SetupDialog(QtWidgets.QDialog):
             self.model_apps.create_maps_anypoint_mode_2()
         self.model_apps.update_file_config()
     
-    def set_value_coordinate(self, coordinate):
+    def set_value_coordinate(self, coordinate: list[float]):
         self.ui.label_pos_x.setText(str(coordinate[0]))
         self.ui.label_pos_y.setText(str(coordinate[1]))
 
@@ -109,14 +109,12 @@ class SetupDialog(QtWidgets.QDialog):
         self.model_apps.update_properties_config_when_change_view_mode()
     
     def checkbox_click(self):
-        if self.ui.checkBox.isChecked():
-            self.model_apps.set_draw_polygon = True
-        else:
-            self.model_apps.set_draw_polygon = False
+        self.model_apps.set_draw_polygon = True if self.ui.checkBox.isChecked() else False
         
-    def alpha_beta_from_coordinate(self, alpha_beta: list):
+    def alpha_beta_from_coordinate(self, alpha_beta: list[float]):
         self.ui.doubleSpinBox_alpha.blockSignals(True)
         self.ui.doubleSpinBox_beta.blockSignals(True)
+        
         if any(elem is None for elem in alpha_beta):
             self.ui.doubleSpinBox_alpha.setValue(0)
             self.ui.doubleSpinBox_beta.setValue(0)
@@ -127,9 +125,9 @@ class SetupDialog(QtWidgets.QDialog):
             self.ui.doubleSpinBox_beta.setValue(round(alpha_beta[1], 2))
             self.ui.label_alpha.setText(str(round(alpha_beta[0], 2)))
             self.ui.label_beta.setText(str(round(alpha_beta[1], 2)))
+            
         self.ui.doubleSpinBox_alpha.blockSignals(False)
         self.ui.doubleSpinBox_beta.blockSignals(False)
-
 
     def onclick_anypoint(self):
         if self.ui.m1Button.isChecked():
@@ -143,8 +141,10 @@ class SetupDialog(QtWidgets.QDialog):
                 self.model_apps.set_alpha_beta(75, -90)
             elif self.sender().objectName() == 'rightButton':
                 self.model_apps.set_alpha_beta(75, 90)
+                
             self.anypoint_config.showing_config_mode_1()
             self.model_apps.create_maps_anypoint_mode_1()
+            
         else:
             if self.sender().objectName() == 'topButton':
                 self.model_apps.set_alpha_beta(75, 0)
@@ -156,8 +156,10 @@ class SetupDialog(QtWidgets.QDialog):
                 self.model_apps.set_alpha_beta(0, -75)
             elif self.sender().objectName() == 'rightButton':
                 self.model_apps.set_alpha_beta(0, 75)
+                
             self.anypoint_config.showing_config_mode_2()
             self.model_apps.create_maps_anypoint_mode_2()
+            
         self.model_apps.state_rubberband = False
         self.model_apps.update_file_config()
 
@@ -167,14 +169,10 @@ class SetupDialog(QtWidgets.QDialog):
         self.ui.comboBox_resolution_sources.blockSignals(False)
         if self.model_apps.resolution_option:
             for item in self.model_apps.resolution_option:
-                self.ui.comboBox_resolution_sources.addItem(f"{str(item[0])} x {str(item[1])}")
-
+                self.ui.comboBox_resolution_sources.addItem(f"{str(item[0])} ✕ {str(item[1])}")
 
     def label_original_mouse_release_event(self, event):
-        if event.button() == QtCore.Qt.MouseButton.LeftButton:
-            pass
-        else:
-            self.menu_mouse_event(event, "label_original")
+        self.menu_mouse_event(event, "label_original") if event.button() != QtCore.Qt.MouseButton.LeftButton else None
 
     def label_original_mouse_move_event(self, event):
         self.model_apps.label_original_mouse_move_event(self.ui.label_image_original, event)
@@ -191,10 +189,10 @@ class SetupDialog(QtWidgets.QDialog):
                     self.model_apps.create_maps_anypoint_mode_2()
                     self.anypoint_config.showing_config_mode_2()
 
-    def label_original_mouse_leave_event(self, event):
+    def label_original_mouse_leave_event(self, _):
         self.model_apps.label_original_mouse_leave_event()
 
-    def label_original_mouse_double_click_event(self, event):
+    def label_original_mouse_double_click_event(self):
         if self.model_apps.state_recent_view == "AnypointView":
             if self.ui.m1Button.isChecked():
                 self.model_apps.label_original_mouse_double_click_anypoint_mode_1()
@@ -203,8 +201,8 @@ class SetupDialog(QtWidgets.QDialog):
                 self.model_apps.label_original_mouse_double_click_anypoint_mode_2()
                 self.anypoint_config.showing_config_mode_2()
 
-    def update_label_image(self, ui_label: QtWidgets.QLabel, image, width: int = 300, scale_content: bool = False):
-        self.model.show_image_to_label(ui_label, image, width = width, scale_content = scale_content)
+    def update_label_image(self, ui_label: QtWidgets.QLabel, image, label_width: int = 300, label_scale_content: bool = False):
+        self.model.show_image_to_label(ui_label, image, width = label_width, scale_content = label_scale_content)
 
     # get the slot and signal of the result image (rectilinear) so it can be connected and display it continously
     def setup_result_signal(self, slot: QtCore.pyqtSlot, signal: QtCore.pyqtSignal):
@@ -235,12 +233,10 @@ class SetupDialog(QtWidgets.QDialog):
             try: self.model_apps.cap.close()
             except: pass
             self.model_apps.cap = None
-        self.reject()
-        self.close()
+        self.reject(); self.close()
 
     def accept_function(self):
-        self.accept()
-        self.close()
+        self.accept(); self.close()
 
     def disconnect_signals(self):
         self.result_signal.disconnect(self.result_slot)
