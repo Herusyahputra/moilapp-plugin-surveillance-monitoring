@@ -227,7 +227,6 @@ class SetupDialog(QtWidgets.QDialog):
     # because the QLabel's lifetime will be over when the Setup Dialog is closed but the previous slot and signal will still call it
     def closeEvent(self, event: QtGui.QCloseEvent):
         self.disconnect_signals()
-        del self.model_apps
         super().closeEvent(event)
 
     def reject_function(self):

@@ -162,10 +162,6 @@ class CustomWidget(QtWidgets.QWidget):
                     break
                 except TypeError: pass
             
-            
-            # print(f'Moving Monitor {sender} into Monitor {receiver}')
-
-
             # print(f'Moving Monitor {sender} into Monitor {receiver}')
 
         print("Widgets:", LATEST_MOVED_WIDGET)
@@ -196,8 +192,9 @@ class Controller(QtWidgets.QWidget):
                 widget.enable_drag_drop = True
                 widget.enable_hover = True
                 widget.menuFrame = ui_monitor.menuFrame 
-                widget.captureButton = ui_monitor.captureButton
                 widget.setupButton = ui_monitor.setupButton
+                widget.captureButton = ui_monitor.captureButton
+                widget.duplicateButton = ui_monitor.duplicateButton
                 widget.deleteButton = ui_monitor.deleteButton
             widget.displayLab = ui_monitor.displayLab
             widget.scrollArea = ui_monitor.scrollArea
@@ -257,10 +254,11 @@ class Controller(QtWidgets.QWidget):
         label: QtWidgets.QLabel               = self.grid_monitor.monitors[ui_idx].displayLab
         setup_button: QtWidgets.QPushButton   = self.grid_monitor.monitors[ui_idx].setupButton
         capture_button: QtWidgets.QPushButton = self.grid_monitor.monitors[ui_idx].captureButton
+        duplicate_button: QtWidgets.QPushButton = self.grid_monitor.monitors[ui_idx].duplicateButton
         delete_button: QtWidgets.QPushButton  = self.grid_monitor.monitors[ui_idx].deleteButton
         label_original: QtWidgets.QLabel      = self.grid_original_monitor.monitors[ui_idx].displayLab
         
-        return (label, label_original, label_recording, setup_button, capture_button, delete_button)
+        return (label, label_original, label_recording, setup_button, capture_button, duplicate_button, delete_button)
 
     def start_stop_recording(self):
         if self.ui.recordMonitorButton.isChecked():
@@ -296,20 +294,22 @@ class Controller(QtWidgets.QWidget):
     def setup_clicked(self, ui_idx: int, media_sources: tuple):
         prev_model_apps: list = self.model_apps_manager.get_model_apps_by_index(ui_idx)
         self.connect_monitor(ui_idx, media_sources, prev_model_apps)
-        del prev_model_apps
 
     def connect_monitor(self, ui_idx: int, media_sources: tuple, prev_model_apps: Optional[ModelApps] = False):
-        label, label_original, label_recording, setup_button, capture_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
+        label, label_original, label_recording, setup_button, capture_button, duplicate_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
         if media_sources[2] is not None:
             model_apps = ModelApps()
             model_apps.update_file_config()
             model_apps.set_media_source(*media_sources)
 
-            self.setup_monitor(model_apps)
+            if not self.setup_monitor(model_apps):
+                return
+            
             if prev_model_apps:
                 self.delete_monitor(prev_model_apps)
 
             print(ui_idx)
+            
             model_apps.signal_image_original.connect(lambda img: self.update_label_image(label_original, img)) # will draw crosshair
             # self.update_label_image(label_original, model_apps.image_resize.copy()) # no crosshair but won't update video
             model_apps.set_draw_polygon = False
@@ -327,11 +327,8 @@ class Controller(QtWidgets.QWidget):
     def setup_monitor(self, model_apps: ModelApps):
         dialog = SetupDialog(model_apps)
         result = dialog.exec()
-        del dialog
-        # return True if (result == QtWidgets.QDialog.DialogCode.Accepted) else False
         
-        if (result == QtWidgets.QDialog.DialogCode.Accepted): return
-        del model_apps
+        if (result == QtWidgets.QDialog.DialogCode.Accepted): return True
 
     def delete_monitor(self, model_apps: ModelApps):
         global EMPTY_SLOTS
@@ -339,16 +336,20 @@ class Controller(QtWidgets.QWidget):
         ui_idx = self.model_apps_manager.get_index_of_model_apps(model_apps)
         if ui_idx == -1: return
         
-        label, label_original, label_recording, setup_button, capture_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
+        label, label_original, label_recording, setup_button, capture_button, duplicate_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
         label.clear()
         label.setText("")
         label_recording.clear()
         label_recording.setText("")
         label_original.clear()
         label_original.setText("")
+        setup_button.blockSignals(True)
         setup_button.clicked.disconnect()
+        setup_button.blockSignals(False)
         # capture_button.clicked.disconnect()
+        delete_button.blockSignals(True)
         delete_button.clicked.disconnect()
+        delete_button.blockSignals(False)
 
         if model_apps.cap is not None:
             model_apps.timer.stop()
