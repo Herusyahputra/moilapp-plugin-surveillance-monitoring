@@ -234,6 +234,7 @@ class Controller(QtWidgets.QWidget):
         self.recorder = ScreenRecorder(self.recorder_widget)
         self.ui.recordMonitorButton.clicked.connect(self.start_stop_recording)
         [monitor.swap_signal.connect(self.handle_swapping) for monitor in self.grid_monitor.monitors]
+        self.garbage_collector = []
         self.set_stylesheet()
 
     # find every QPushButton, QLabel, QScrollArea, and Line, this works because this class is a subclass of QWidget
@@ -299,17 +300,23 @@ class Controller(QtWidgets.QWidget):
     def connect_monitor(self, ui_idx: int, media_sources: tuple, prev_model_apps: Optional[ModelApps] = False):
         label, label_original, label_recording, setup_button, capture_button, duplicate_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
         if media_sources[2] is not None:
-            model_apps = ModelApps()
+            if self.garbage_collector:
+                model_apps = self.garbage_collector[0]
+            else:
+                model_apps = ModelApps()
             model_apps.update_file_config()
             model_apps.set_media_source(*media_sources)
 
             if not self.setup_monitor(model_apps):
+                if model_apps not in self.garbage_collector:
+                    self.garbage_collector.append(model_apps)
                 return
+            else:
+                if self.garbage_collector:
+                    self.garbage_collector.pop()
             
             if prev_model_apps:
                 self.delete_monitor(prev_model_apps)
-
-            print(ui_idx)
             
             model_apps.signal_image_original.connect(lambda img: self.update_label_image(label_original, img)) # will draw crosshair
             # self.update_label_image(label_original, model_apps.image_resize.copy()) # no crosshair but won't update video
@@ -328,7 +335,7 @@ class Controller(QtWidgets.QWidget):
     def setup_monitor(self, model_apps: ModelApps):
         dialog = SetupDialog(model_apps)
         result = dialog.exec()
-        
+
         if (result == QtWidgets.QDialog.DialogCode.Accepted): return True
 
     def delete_monitor(self, model_apps: ModelApps):
