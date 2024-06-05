@@ -8,8 +8,9 @@ from .views.surveillance_ui import Ui_Main
 from .views.monitor_ui import Ui_Monitor
 
 from PyQt6 import QtWidgets, QtCore, QtGui
-LATEST_MOVED_WIDGET: list[dict[str, int, None]] = [None] * MAX_MONITOR_INDEX
-AVAILABLE_MONITORS: list[Optional[int]] = [None] * MAX_MONITOR_INDEX
+import os.path as osp
+
+
 
 class CustomStackedWidget(QtWidgets.QWidget):
     def __init__(self, widgets, rows=1, columns=1):
@@ -107,7 +108,7 @@ class CustomWidget(QtWidgets.QWidget):
         self.cur_index = '0'
 
         self.setMinimumSize(QtCore.QSize(LABEL_IMAGE_WIDTH, LABEL_IMAGE_HEIGHT))
-        self.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.MinimumExpanding)
         self.setAcceptDrops(True)
     
     def get_width(self) -> int:
@@ -161,11 +162,7 @@ class CustomWidget(QtWidgets.QWidget):
                     AVAILABLE_MONITORS[int(sender)], AVAILABLE_MONITORS[int(receiver)] = None, id + 1
                     break
                 except TypeError: pass
-            
-            # print(f'Moving Monitor {sender} into Monitor {receiver}')
 
-        print("Widgets:", LATEST_MOVED_WIDGET)
-        print("Data:", AVAILABLE_MONITORS)
 
 class Controller(QtWidgets.QWidget):
     def __init__(self, model: Model):
@@ -234,7 +231,8 @@ class Controller(QtWidgets.QWidget):
         self.recorder = ScreenRecorder(self.recorder_widget)
         self.ui.recordMonitorButton.clicked.connect(self.start_stop_recording)
         [monitor.swap_signal.connect(self.handle_swapping) for monitor in self.grid_monitor.monitors]
-        self.garbage_collector = []
+        self.tmp_model_apps_container = []
+        self.image_results = {}
         self.set_stylesheet()
 
     # find every QPushButton, QLabel, QScrollArea, and Line, this works because this class is a subclass of QWidget
@@ -300,20 +298,20 @@ class Controller(QtWidgets.QWidget):
     def connect_monitor(self, ui_idx: int, media_sources: tuple, prev_model_apps: Optional[ModelApps] = False):
         label, label_original, label_recording, setup_button, capture_button, duplicate_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
         if media_sources[2] is not None:
-            if self.garbage_collector:
-                model_apps = self.garbage_collector[0]
+            if self.tmp_model_apps_container:
+                model_apps = self.tmp_model_apps_container[0]
             else:
                 model_apps = ModelApps()
             model_apps.update_file_config()
             model_apps.set_media_source(*media_sources)
 
             if not self.setup_monitor(model_apps):
-                if model_apps not in self.garbage_collector:
-                    self.garbage_collector.append(model_apps)
+                if model_apps not in self.tmp_model_apps_container:
+                    self.tmp_model_apps_container.append(model_apps)
                 return
             else:
-                if self.garbage_collector:
-                    self.garbage_collector.pop()
+                if self.tmp_model_apps_container:
+                    self.tmp_model_apps_container.pop()
             
             if prev_model_apps:
                 self.delete_monitor(prev_model_apps)
@@ -323,14 +321,19 @@ class Controller(QtWidgets.QWidget):
             model_apps.set_draw_polygon = False
             model_apps.image_result.connect(lambda img: self.update_label_image(label, img))
             model_apps.image_result.connect(lambda img: self.update_label_image(label_recording, img, width=self.recorded_image_width))
+            model_apps.image_result.connect(lambda img: self.set_image_results(model_apps, img))
             model_apps.create_image_result()
             setup_button.clicked.connect(lambda: self.setup_clicked(media_sources))
+            capture_button.clicked.connect(lambda: self.save_image(model_apps))
             delete_button.clicked.connect(lambda: self.delete_monitor(model_apps))
             self.model_apps_manager.set_model_apps(ui_idx, model_apps)
 
     def update_label_image(self, ui_label, image, width: Optional[int] = "Default", scale_content: bool = False):
         if width == "Default": width = self.image_width
         self.model.show_image_to_label(ui_label, image, width = width, scale_content = scale_content)
+    
+    def set_image_results(self, model_apps : ModelApps, image):
+        self.image_results[model_apps] = image
 
     def setup_monitor(self, model_apps: ModelApps):
         dialog = SetupDialog(model_apps)
@@ -351,13 +354,9 @@ class Controller(QtWidgets.QWidget):
         label_recording.setText("")
         label_original.clear()
         label_original.setText("")
-        setup_button.blockSignals(True)
         setup_button.clicked.disconnect()
-        setup_button.blockSignals(False)
-        # capture_button.clicked.disconnect()
-        delete_button.blockSignals(True)
+        capture_button.clicked.disconnect()
         delete_button.clicked.disconnect()
-        delete_button.blockSignals(False)
 
         if model_apps.cap is not None:
             model_apps.timer.stop()
@@ -373,6 +372,12 @@ class Controller(QtWidgets.QWidget):
 
         self.model_apps_manager.clear_model_apps(ui_idx)
         EMPTY_SLOTS += 1
+
+    def save_image(self, model_apps : ModelApps):
+        dir_save = osp.realpath(osp.join(osp.dirname(__file__), '../../../saved_image/anypoint/'))
+        dir_save = osp.join(dir_save, "")
+        model_apps.save_image_file(self.image_results[model_apps], dir_save, model_apps.parameter_name)
+        print(f'Image saved in {dir_save}!')
 
     def gallery_clicked(self):
         print("INFO: \"gallery_clicked()\" function is STILL under development!")

@@ -175,7 +175,7 @@ class SetupDialog(QtWidgets.QDialog):
                 self.ui.comboBox_resolution_sources.addItem(f"{str(item[0])} ✕ {str(item[1])}")
 
     def label_original_mouse_release_event(self, event):
-        self.menu_mouse_event(event, "label_original") if event.button() != QtCore.Qt.MouseButton.LeftButton else None
+        pass
 
     def label_original_mouse_move_event(self, event):
         self.model_apps.label_original_mouse_move_event(self.ui.label_image_original, event)
@@ -195,7 +195,7 @@ class SetupDialog(QtWidgets.QDialog):
     def label_original_mouse_leave_event(self, _):
         self.model_apps.label_original_mouse_leave_event()
 
-    def label_original_mouse_double_click_event(self):
+    def label_original_mouse_double_click_event(self, _):
         if self.model_apps.state_recent_view == "AnypointView":
             if self.ui.m1Button.isChecked():
                 self.model_apps.label_original_mouse_double_click_anypoint_mode_1()

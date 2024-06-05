@@ -9,6 +9,10 @@ RECORDING_FPS: float    = 30.00
 LABEL_IMAGE_WIDTH: int  = 340
 LABEL_IMAGE_HEIGHT: int = 260
 
+LATEST_MOVED_WIDGET: list[dict[str, int, None]] = [None] * MAX_MONITOR_INDEX
+AVAILABLE_MONITORS: list[Optional[int]] = [None] * MAX_MONITOR_INDEX
+
+
 class ModelAppsManager:
     def __init__(self):
         self.model_apps = [None] * 8
