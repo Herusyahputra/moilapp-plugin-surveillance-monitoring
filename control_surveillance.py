@@ -51,6 +51,7 @@ class CustomStackedWidget(QtWidgets.QWidget):
             self.stackedPages.removeWidget(widget)
             widget.deleteLater()
             
+            
         # Add widgets with the new grid size
         for i in range(0, len(self.monitors), self.rows * self.columns):
             page = QtWidgets.QWidget()
