@@ -10,8 +10,8 @@ LABEL_IMAGE_WIDTH: int  = 340
 LABEL_IMAGE_HEIGHT: int = 260
 
 LATEST_MOVED_WIDGET: list[dict[str, int, None]] = [None] * MAX_MONITOR_INDEX
-AVAILABLE_MONITORS: list[Optional[int]] = [None] * MAX_MONITOR_INDEX
-
+AVAILABLE_MONITORS: list[Optional[int]]         = [0] * MAX_MONITOR_INDEX
+MONITORS_POSITIONS: list[Optional[int]]         = [(INDEX + 1) for INDEX in range(MAX_MONITOR_INDEX)]
 
 class ModelAppsManager:
     def __init__(self):
