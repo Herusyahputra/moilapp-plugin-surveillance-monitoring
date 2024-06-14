@@ -51,7 +51,6 @@ class CustomStackedWidget(QtWidgets.QWidget):
             self.stackedPages.removeWidget(widget)
             widget.deleteLater()
             
-            
         # Add widgets with the new grid size
         for i in range(0, len(self.monitors), self.rows * self.columns):
             page = QtWidgets.QWidget()
@@ -253,7 +252,7 @@ class Controller(QtWidgets.QWidget):
                                 background-color: rgb(200,205,205);
                                 border-radius: 3px;
                                 font-family: Segoe UI;
-                                font-size: 24px;
+                                font-size: 28px;
                             }
                             """
         else:
@@ -262,7 +261,7 @@ class Controller(QtWidgets.QWidget):
                                 background-color: #17202b;
                                 border-radius: 3px;
                                 font-family: Segoe UI;
-                                font-size: 24px;
+                                font-size: 28px;
                             }
                         """
         return stylesheet
@@ -274,9 +273,10 @@ class Controller(QtWidgets.QWidget):
         [button.setStyleSheet(self.model.style_pushbutton()) for button in self.findChildren(QtWidgets.QPushButton)]
         [scroll_area.setStyleSheet(self.model.style_scroll_area()) for scroll_area in self.findChildren(QtWidgets.QScrollArea)]
         
-        [label.setStyleSheet(self.style_monitor_label()) for label in self.findChildren(QtWidgets.QLabel)]
+        [label.setStyleSheet(self.style_monitor_label()) for i, label in enumerate(self.findChildren(QtWidgets.QLabel)) if 8 < i <= (MAX_MONITOR_INDEX * 2)]
+        [label.setStyleSheet(self.model.style_label()) for j, label in enumerate(self.findChildren(QtWidgets.QLabel)) if j <= (MAX_MONITOR_INDEX)]
         [label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter) for label in self.findChildren(QtWidgets.QLabel)]
-        [label.setText(f"{monitor_id - MAX_MONITOR_INDEX}" if monitor_id - MAX_MONITOR_INDEX > 0 else f"{monitor_id + 1}") for monitor_id, label in enumerate(self.findChildren(QtWidgets.QLabel))]
+        [label.setText(f"{monitor_id - MAX_MONITOR_INDEX}" if monitor_id - MAX_MONITOR_INDEX > 0 else f"{monitor_id + 1}") for monitor_id, label in enumerate(self.findChildren(QtWidgets.QLabel)) if 8 < monitor_id <= (MAX_MONITOR_INDEX * 2)]
         
         self.ui.line.setStyleSheet(self.model.style_line())
         self.ui.line_2.setStyleSheet(self.model.style_line())
@@ -286,13 +286,13 @@ class Controller(QtWidgets.QWidget):
         [label.setStyleSheet('background-color: black;') for label in self.recorder_widget.findChildren(QtWidgets.QLabel)]
     
     def get_monitor_ui_by_idx(self, ui_idx) -> tuple[QtWidgets.QLabel, QtWidgets.QLabel, QtWidgets.QLabel, QtWidgets.QPushButton, QtWidgets.QPushButton, QtWidgets.QPushButton, QtWidgets.QPushButton]:
-        label_recording: QtWidgets.QLabel     = self.recorder_widget.monitors[ui_idx].displayLab
-        label: QtWidgets.QLabel               = self.grid_monitor.monitors[ui_idx].displayLab
-        setup_button: QtWidgets.QPushButton   = self.grid_monitor.monitors[ui_idx].setupButton
-        capture_button: QtWidgets.QPushButton = self.grid_monitor.monitors[ui_idx].captureButton
+        label_recording: QtWidgets.QLabel       = self.recorder_widget.monitors[ui_idx].displayLab
+        label: QtWidgets.QLabel                 = self.grid_monitor.monitors[ui_idx].displayLab
+        setup_button: QtWidgets.QPushButton     = self.grid_monitor.monitors[ui_idx].setupButton
+        capture_button: QtWidgets.QPushButton   = self.grid_monitor.monitors[ui_idx].captureButton
         duplicate_button: QtWidgets.QPushButton = self.grid_monitor.monitors[ui_idx].duplicateButton
-        delete_button: QtWidgets.QPushButton  = self.grid_monitor.monitors[ui_idx].deleteButton
-        label_original: QtWidgets.QLabel      = self.grid_original_monitor.monitors[ui_idx].displayLab
+        delete_button: QtWidgets.QPushButton    = self.grid_monitor.monitors[ui_idx].deleteButton
+        label_original: QtWidgets.QLabel        = self.grid_original_monitor.monitors[ui_idx].displayLab
         
         return (label, label_original, label_recording, setup_button, capture_button, duplicate_button, delete_button)
 
@@ -322,22 +322,27 @@ class Controller(QtWidgets.QWidget):
         media_sources = self.model.select_media_source()
         self.connect_monitor(ui_idx, media_sources)
         
-        LATEST_MOVED_WIDGET[ui_idx] = {"ID": ui_idx, "PREV": ui_idx, "NEXT": ui_idx}
-        AVAILABLE_MONITORS[ui_idx] = ui_idx
+        LATEST_MOVED_WIDGET[ui_idx] = {"ID": (ui_idx + 1), "PREV": (ui_idx + 1), "NEXT": (ui_idx + 1)}
+        AVAILABLE_MONITORS[ui_idx] = 1
         EMPTY_SLOTS -= 1
         
     def setup_clicked(self, media_sources: tuple):
+        global LATEST_MOVED_WIDGET, MONITORS_POSITIONS
+        
         ui_idx = self.grid_monitor.monitors.index(self.sender().parent().parent())
-        prev_model_apps: ModelApps = self.model_apps_manager.get_model_apps_by_index(ui_idx)
+        prev_model_apps = self.model_apps_manager.get_model_apps_by_index(MONITORS_POSITIONS[ui_idx])
         self.connect_monitor(ui_idx, media_sources, prev_model_apps)
+        LATEST_MOVED_WIDGET[ui_idx] = {"ID": (ui_idx + 1), "PREV": (ui_idx + 1), "NEXT": (ui_idx + 1)}
 
     def connect_monitor(self, ui_idx: int, media_sources: tuple, prev_model_apps: Optional[ModelApps] = False):
         label, label_original, label_recording, setup_button, capture_button, duplicate_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
+        
         if media_sources[2] is not None:
             if self.tmp_model_apps_container:
                 model_apps = self.tmp_model_apps_container[0]
             else:
                 model_apps = ModelApps()
+            
             model_apps.update_file_config()
             model_apps.set_media_source(*media_sources)
 
@@ -374,7 +379,6 @@ class Controller(QtWidgets.QWidget):
     def setup_monitor(self, model_apps: ModelApps):
         dialog = SetupDialog(model_apps)
         result = dialog.exec()
-
         if (result == QtWidgets.QDialog.DialogCode.Accepted): return True
 
     def delete_monitor(self, model_apps: ModelApps):
@@ -426,10 +430,14 @@ class Controller(QtWidgets.QWidget):
     def original_view_clicked(self):
         if self.ui.stackedWidget.currentIndex():
             self.ui.stackedWidget.setCurrentIndex(0)
-            self.ui.fisheyeButton.setText('Show Original View')
+            self.ui.fisheyeButton.setText('🔍 Show Original View')
         else:
             self.ui.stackedWidget.setCurrentIndex(1)
-            self.ui.fisheyeButton.setText('Show Rectilinear View')
+            self.ui.fisheyeButton.setText('🔎 Show Rectilinear View')
+            
+        [label.setStyleSheet(self.style_monitor_label()) for i, label in enumerate(self.findChildren(QtWidgets.QLabel)) if 8 < i <= (MAX_MONITOR_INDEX * 2)]
+        [label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter) for label in self.findChildren(QtWidgets.QLabel)]
+        [label.setText(f"{monitor_id - MAX_MONITOR_INDEX}" if monitor_id - MAX_MONITOR_INDEX > 0 else f"{monitor_id + 1}") for monitor_id, label in enumerate(self.findChildren(QtWidgets.QLabel)) if 8 < monitor_id <= (MAX_MONITOR_INDEX * 2)]
     
     def relayout_grid_clicked(self):
         if self.sender().objectName() == 'layoutOneByOneButton':
@@ -467,7 +475,7 @@ class SurveillanceMonitor(PluginInterface):
     def __init__(self):
         super().__init__()
         self.widget = None
-        self.description = "Moilapp Plugin: Surveillance monitoring area using Fisheye Camera for a wide 360deg view"
+        self.description = "Moilapp Plugin: Surveillance monitoring area using Fisheye Camera for a wide 360° view"
 
     def set_plugin_widget(self, model):
         self.widget = Controller(model)
