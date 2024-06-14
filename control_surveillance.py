@@ -461,19 +461,22 @@ class Controller(QtWidgets.QWidget):
         model_apps.save_image_file(self.image_results[model_apps], self.save_image_dir, model_apps.parameter_name)
         print(f'Image saved in {self.save_image_dir}')
 
-    def gallery_clicked(self):
-        if self.ui.stackedWidget.currentIndex():
-            self.ui.stackedWidget.setCurrentIndex(0)
-            self.ui.fisheyeButton.setText('Show Original View')
-        else:
-            self.ui.stackedWidget.setCurrentIndex(2)
-            self.image_gallery.loadImages()
-
     def parameter_clicked(self):
         self.model.form_camera_parameter()
 
+    def gallery_clicked(self):
+        self.ui.fisheyeButton.setText('Show Original View')
+        if self.ui.stackedWidget.currentIndex() == 2:
+            self.ui.stackedWidget.setCurrentIndex(0)
+            self.ui.galleryButton.setText('Gallery')
+        else:
+            self.ui.stackedWidget.setCurrentIndex(2)
+            self.image_gallery.loadImages()
+            self.ui.galleryButton.setText('Go Back')
+
     def original_view_clicked(self):
-        if self.ui.stackedWidget.currentIndex():
+        self.ui.galleryButton.setText('Gallery')
+        if self.ui.stackedWidget.currentIndex() == 1:
             self.ui.stackedWidget.setCurrentIndex(0)
             self.ui.fisheyeButton.setText('Show Original View')
         else:
