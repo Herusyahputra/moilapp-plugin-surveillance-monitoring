@@ -235,6 +235,7 @@ class SetupDialog(QtWidgets.QDialog):
             try: self.model_apps.cap.close()
             except: pass
             self.model_apps.cap = None
+        # self.model_apps.deleteLater()
         self.reject()
         self.close()
 

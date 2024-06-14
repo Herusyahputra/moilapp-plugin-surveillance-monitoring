@@ -3,13 +3,81 @@ from src.models.model_apps import Model, ModelApps
 from .custom_screen_capture import ScreenRecorder
 from .constants import *
 from .control_setup import SetupDialog
-from .views.recorder_ui import Ui_Recorder
 from .views.surveillance_ui import Ui_Main
 from .views.monitor_ui import Ui_Monitor
 
 from PyQt6 import QtWidgets, QtCore, QtGui
 import os.path as osp
+import os
 
+
+class ImageGallery(QtWidgets.QWidget):
+    def __init__(self, folder_path):
+        super().__init__()
+
+        # Splitter to manage the layout dynamically
+        self.splitter = QtWidgets.QSplitter(QtCore.Qt.Orientation.Horizontal)
+        
+        # QListWidget for displaying image thumbnails
+        self.listWidget = QtWidgets.QListWidget()
+        self.listWidget.setIconSize(QtCore.QSize(100, 100))
+        self.listWidget.setViewMode(QtWidgets.QListWidget.ViewMode.IconMode)
+        self.listWidget.setResizeMode(QtWidgets.QListWidget.ResizeMode.Adjust)
+        self.listWidget.itemClicked.connect(self.onImageClicked)
+
+        # QLabel for displaying the selected image
+        self.imageLabel = QtWidgets.QLabel("Select an image from the list")
+        self.imageLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        # self.imageLabel.setScaledContents(True)  # Allow QLabel to scale contents
+        self.imageLabel.setMinimumSize(200, 200)
+
+        # Add widgets to the splitter
+        self.splitter.addWidget(self.listWidget)
+        self.splitter.addWidget(self.imageLabel)
+
+        # Set initial sizes: listWidget (1) and imageLabel (1)
+        self.splitter.setSizes([400, 400])
+
+        # Main layout
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(self.splitter)
+        self.setLayout(layout)
+
+        # Load images from the specified folder
+        self.folder_path = folder_path
+        self.loadImages()
+
+        # Store the currently displayed image path
+        self.currentImagePath = None
+
+    def loadImages(self):
+        """Loads images from the specified folder and adds them to the QListWidget"""
+        for filename in os.listdir(self.folder_path):
+            if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
+                image_path = osp.join(self.folder_path, filename)
+                pixmap = QtGui.QPixmap(image_path)
+                icon = QtGui.QIcon(pixmap.scaled(100, 100, QtCore.Qt.AspectRatioMode.KeepAspectRatio))
+
+                # Create a QListWidgetItem with the image icon
+                item = QtWidgets.QListWidgetItem(icon, filename)
+                item.setWhatsThis(image_path) # Store the image path in the item
+
+                self.listWidget.addItem(item)
+
+    def onImageClicked(self, item):
+        """Displays the full-size image in the QLabel when an item is clicked or clears it if the same image is clicked again"""
+        image_path = item.whatsThis()
+
+        if image_path == self.currentImagePath:
+            # Clear the QLabel if the same image is clicked
+            self.imageLabel.clear()
+            self.imageLabel.setText("Select an image from the list")
+            self.currentImagePath = None
+        else:
+            # Display the full-size image
+            pixmap = QtGui.QPixmap(image_path).scaled(self.imageLabel.size(), QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.SmoothTransformation)
+            self.imageLabel.setPixmap(pixmap)
+            self.currentImagePath = image_path
 
 
 class CustomStackedWidget(QtWidgets.QWidget):
@@ -177,6 +245,11 @@ class Controller(QtWidgets.QWidget):
         self.ui.paramButton.clicked.connect(self.parameter_clicked)
         self.ui.galleryButton.clicked.connect(self.gallery_clicked)
 
+        self.save_image_dir = osp.realpath(osp.join(osp.dirname(__file__), '../../../saved_image/anypoint/'))
+        self.save_image_dir = osp.join(self.save_image_dir, "")
+        if not osp.exists(self.save_image_dir):
+            os.makedirs(self.save_image_dir)
+
         widgets = []
         for i in range(16):
             widget = CustomWidget()
@@ -197,8 +270,6 @@ class Controller(QtWidgets.QWidget):
             widget.scrollArea = ui_monitor.scrollArea
             widgets.append(widget)
         
-        self.image_width = LABEL_IMAGE_WIDTH
-    
         self.grid_monitor = CustomStackedWidget(widgets[:8], 2, 4)
         self.grid_original_monitor = CustomStackedWidget(widgets[8:], 2, 4)
         self.ui.stackedWidget.addWidget(self.grid_monitor)
@@ -208,6 +279,10 @@ class Controller(QtWidgets.QWidget):
         self.ui.layoutTwoByTwoButton.clicked.connect(self.relayout_grid_clicked)
         self.ui.layoutTwoByFourButton.clicked.connect(self.relayout_grid_clicked)
         self.model_apps_manager = ModelAppsManager()
+
+        self.image_gallery = ImageGallery(self.save_image_dir)
+        self.ui.stackedWidget.addWidget(self.image_gallery)
+        
 
         recorder_widgets = []
         for i in range(8):
@@ -235,11 +310,14 @@ class Controller(QtWidgets.QWidget):
         self.image_results = {}
         self.set_stylesheet()
 
+        self.image_width = LABEL_IMAGE_WIDTH
+
     # find every QPushButton, QLabel, QScrollArea, and Line, this works because this class is a subclass of QWidget
     def set_stylesheet(self):
         [button.setStyleSheet(self.model.style_pushbutton()) for button in self.findChildren(QtWidgets.QPushButton)]
-        [label.setStyleSheet(self.model.style_label()) for label in self.findChildren(QtWidgets.QLabel)]
         [scroll_area.setStyleSheet(self.model.style_scroll_area()) for scroll_area in self.findChildren(QtWidgets.QScrollArea)]
+        [label.setStyleSheet(self.model.style_label()) for label in self.findChildren(QtWidgets.QLabel)]
+        self.image_gallery.imageLabel.setStyleSheet(self.model.style_label())
         
         self.ui.line.setStyleSheet(self.model.style_line())
         self.ui.line_2.setStyleSheet(self.model.style_line())
@@ -271,14 +349,7 @@ class Controller(QtWidgets.QWidget):
         
         ui_idx = self.model_apps_manager.get_empty_model_apps()
         if not ui_idx:
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            msg.setStyleSheet("font-family: Segoe UI; font-size:14px;")
-            msg.setWindowTitle("Information!")
-        
-            msg.setText("Cannot add more monitors!")
-            msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
-            msg.exec()
+            self.msg_warn_cant_add_more_monitors()
             return
         
         ui_idx: int = ui_idx[0]
@@ -299,34 +370,37 @@ class Controller(QtWidgets.QWidget):
         label, label_original, label_recording, setup_button, capture_button, duplicate_button, delete_button = self.get_monitor_ui_by_idx(ui_idx)
         if media_sources[2] is not None:
             if self.tmp_model_apps_container:
-                model_apps = self.tmp_model_apps_container[0]
+                cur_model_apps = self.tmp_model_apps_container[0]
             else:
-                model_apps = ModelApps()
-            model_apps.update_file_config()
-            model_apps.set_media_source(*media_sources)
+                cur_model_apps = ModelApps()
+            cur_model_apps.update_file_config()
+            cur_model_apps.set_media_source(*media_sources)
 
-            if not self.setup_monitor(model_apps):
-                if model_apps not in self.tmp_model_apps_container:
-                    self.tmp_model_apps_container.append(model_apps)
+            if not self.setup_monitor(cur_model_apps):
+                # if setup is cancelled, put the monitor in a list
+                if cur_model_apps not in self.tmp_model_apps_container:
+                    self.tmp_model_apps_container.append(cur_model_apps)
                 return
             else:
+                # if setup is successful, remove the monitor from the list and use it as the currently added monitor
                 if self.tmp_model_apps_container:
                     self.tmp_model_apps_container.pop()
             
             if prev_model_apps:
                 self.delete_monitor(prev_model_apps)
             
-            model_apps.signal_image_original.connect(lambda img: self.update_label_image(label_original, img)) # will draw crosshair
+            cur_model_apps.signal_image_original.connect(lambda img: self.update_label_image(label_original, img)) # will draw crosshair
             # self.update_label_image(label_original, model_apps.image_resize.copy()) # no crosshair but won't update video
-            model_apps.set_draw_polygon = False
-            model_apps.image_result.connect(lambda img: self.update_label_image(label, img))
-            model_apps.image_result.connect(lambda img: self.update_label_image(label_recording, img, width=self.recorded_image_width))
-            model_apps.image_result.connect(lambda img: self.set_image_results(model_apps, img))
-            model_apps.create_image_result()
+            cur_model_apps.set_draw_polygon = False
+            cur_model_apps.image_result.connect(lambda img: self.update_label_image(label, img))
+            cur_model_apps.image_result.connect(lambda img: self.update_label_image(label_recording, img, width=self.recorded_image_width))
+            cur_model_apps.image_result.connect(lambda img: self.set_image_results(cur_model_apps, img))
+            cur_model_apps.create_image_result()
             setup_button.clicked.connect(lambda: self.setup_clicked(media_sources))
-            capture_button.clicked.connect(lambda: self.save_image(model_apps))
-            delete_button.clicked.connect(lambda: self.delete_monitor(model_apps))
-            self.model_apps_manager.set_model_apps(ui_idx, model_apps)
+            capture_button.clicked.connect(lambda: self.save_image(cur_model_apps))
+            duplicate_button.clicked.connect(lambda: self.duplicate_monitor(media_sources))
+            delete_button.clicked.connect(lambda: self.delete_monitor(cur_model_apps))
+            self.model_apps_manager.set_model_apps(ui_idx, cur_model_apps)
 
     def update_label_image(self, ui_label, image, width: Optional[int] = "Default", scale_content: bool = False):
         if width == "Default": width = self.image_width
@@ -340,6 +414,15 @@ class Controller(QtWidgets.QWidget):
         result = dialog.exec()
 
         if (result == QtWidgets.QDialog.DialogCode.Accepted): return True
+
+    def duplicate_monitor(self, media_sources: tuple):
+        ui_idx = self.model_apps_manager.get_empty_model_apps()
+        if not ui_idx:
+            self.msg_warn_cant_add_more_monitors()
+            return
+        
+        ui_idx: int = ui_idx[0]
+        self.connect_monitor(ui_idx, media_sources)
 
     def delete_monitor(self, model_apps: ModelApps):
         global EMPTY_SLOTS
@@ -356,6 +439,7 @@ class Controller(QtWidgets.QWidget):
         label_original.setText("")
         setup_button.clicked.disconnect()
         capture_button.clicked.disconnect()
+        duplicate_button.clicked.disconnect()
         delete_button.clicked.disconnect()
 
         if model_apps.cap is not None:
@@ -374,13 +458,16 @@ class Controller(QtWidgets.QWidget):
         EMPTY_SLOTS += 1
 
     def save_image(self, model_apps : ModelApps):
-        dir_save = osp.realpath(osp.join(osp.dirname(__file__), '../../../saved_image/anypoint/'))
-        dir_save = osp.join(dir_save, "")
-        model_apps.save_image_file(self.image_results[model_apps], dir_save, model_apps.parameter_name)
-        print(f'Image saved in {dir_save}!')
+        model_apps.save_image_file(self.image_results[model_apps], self.save_image_dir, model_apps.parameter_name)
+        print(f'Image saved in {self.save_image_dir}')
 
     def gallery_clicked(self):
-        print("INFO: \"gallery_clicked()\" function is STILL under development!")
+        if self.ui.stackedWidget.currentIndex():
+            self.ui.stackedWidget.setCurrentIndex(0)
+            self.ui.fisheyeButton.setText('Show Original View')
+        else:
+            self.ui.stackedWidget.setCurrentIndex(2)
+            self.image_gallery.loadImages()
 
     def parameter_clicked(self):
         self.model.form_camera_parameter()
@@ -424,6 +511,16 @@ class Controller(QtWidgets.QWidget):
         self.grid_original_monitor.updateButtons()
         self.recorder_widget.updateStackedWidget()
         self.recorder_widget.updateButtons()
+
+    def msg_warn_cant_add_more_monitors(self):
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        msg.setStyleSheet("font-family: Segoe UI; font-size:14px;")
+        msg.setWindowTitle("Information!")
+    
+        msg.setText("Cannot add more monitors!")
+        msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
+        msg.exec()
 
 
 class SurveillanceMonitor(PluginInterface):
