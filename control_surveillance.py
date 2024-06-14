@@ -430,11 +430,11 @@ class Controller(QtWidgets.QWidget):
     def original_view_clicked(self):
         if self.ui.stackedWidget.currentIndex():
             self.ui.stackedWidget.setCurrentIndex(0)
-            self.ui.fisheyeButton.setText('🔍 Show Original View')
+            self.ui.fisheyeButton.setText('Show Original View')
         else:
             self.ui.stackedWidget.setCurrentIndex(1)
-            self.ui.fisheyeButton.setText('🔎 Show Rectilinear View')
-            
+            self.ui.fisheyeButton.setText('Show Rectilinear View')
+        
         [label.setStyleSheet(self.style_monitor_label()) for i, label in enumerate(self.findChildren(QtWidgets.QLabel)) if 8 < i <= (MAX_MONITOR_INDEX * 2)]
         [label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter) for label in self.findChildren(QtWidgets.QLabel)]
         [label.setText(f"{monitor_id - MAX_MONITOR_INDEX}" if monitor_id - MAX_MONITOR_INDEX > 0 else f"{monitor_id + 1}") for monitor_id, label in enumerate(self.findChildren(QtWidgets.QLabel)) if 8 < monitor_id <= (MAX_MONITOR_INDEX * 2)]
