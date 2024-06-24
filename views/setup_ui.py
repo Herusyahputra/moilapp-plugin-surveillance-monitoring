@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'setup_ui.ui'
+# Form implementation generated from reading ui file 'views/setup_ui.ui'
 #
 # Created by: PyQt6 UI code generator 6.3.1
 #
@@ -10,10 +10,10 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 
 
 class Ui_Setup(object):
-    def setupUi(self, Form):
-        Form.setObjectName("Form")
-        Form.resize(649, 761)
-        self.gridLayoutWidget = QtWidgets.QWidget(Form)
+    def setupUi(self, Setup):
+        Setup.setObjectName("Setup")
+        Setup.resize(649, 761)
+        self.gridLayoutWidget = QtWidgets.QWidget(Setup)
         self.gridLayoutWidget.setGeometry(QtCore.QRect(20, 20, 608, 321))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
@@ -45,7 +45,7 @@ class Ui_Setup(object):
         self.label_image_original.setText("")
         self.label_image_original.setObjectName("label_image_original")
         self.gridLayout.addWidget(self.label_image_original, 3, 1, 1, 1)
-        self.verticalLayoutWidget = QtWidgets.QWidget(Form)
+        self.verticalLayoutWidget = QtWidgets.QWidget(Setup)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(330, 350, 301, 341))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
@@ -66,7 +66,7 @@ class Ui_Setup(object):
         self.horizontalLayout.addWidget(self.label_50)
         self.label_pos_x = QtWidgets.QLabel(self.verticalLayoutWidget)
         self.label_pos_x.setMinimumSize(QtCore.QSize(0, 0))
-        self.label_pos_x.setMaximumSize(QtCore.QSize(10, 38))
+        self.label_pos_x.setMaximumSize(QtCore.QSize(40, 38))
         self.label_pos_x.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.label_pos_x.setObjectName("label_pos_x")
         self.horizontalLayout.addWidget(self.label_pos_x)
@@ -84,7 +84,7 @@ class Ui_Setup(object):
         self.horizontalLayout.addWidget(self.label_51)
         self.label_pos_y = QtWidgets.QLabel(self.verticalLayoutWidget)
         self.label_pos_y.setMinimumSize(QtCore.QSize(0, 0))
-        self.label_pos_y.setMaximumSize(QtCore.QSize(10, 38))
+        self.label_pos_y.setMaximumSize(QtCore.QSize(40, 38))
         self.label_pos_y.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.label_pos_y.setObjectName("label_pos_y")
         self.horizontalLayout.addWidget(self.label_pos_y)
@@ -141,7 +141,7 @@ class Ui_Setup(object):
         self.centerButton.setObjectName("centerButton")
         self.gridLayout_2.addWidget(self.centerButton, 2, 1, 1, 1)
         self.verticalLayout.addLayout(self.gridLayout_2)
-        self.verticalLayoutWidget_4 = QtWidgets.QWidget(Form)
+        self.verticalLayoutWidget_4 = QtWidgets.QWidget(Setup)
         self.verticalLayoutWidget_4.setGeometry(QtCore.QRect(20, 350, 302, 341))
         self.verticalLayoutWidget_4.setObjectName("verticalLayoutWidget_4")
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_4)
@@ -175,9 +175,13 @@ class Ui_Setup(object):
         self.verticalLayout_2.addWidget(self.modeLab)
         self.m1Button = QtWidgets.QRadioButton(self.verticalLayoutWidget_4)
         self.m1Button.setObjectName("m1Button")
+        self.modeSelectGroup = QtWidgets.QButtonGroup(Setup)
+        self.modeSelectGroup.setObjectName("modeSelectGroup")
+        self.modeSelectGroup.addButton(self.m1Button)
         self.verticalLayout_2.addWidget(self.m1Button)
         self.m2Button = QtWidgets.QRadioButton(self.verticalLayoutWidget_4)
         self.m2Button.setObjectName("m2Button")
+        self.modeSelectGroup.addButton(self.m2Button)
         self.verticalLayout_2.addWidget(self.m2Button)
         self.labelZoom = QtWidgets.QLabel(self.verticalLayoutWidget_4)
         self.labelZoom.setMinimumSize(QtCore.QSize(60, 10))
@@ -229,7 +233,7 @@ class Ui_Setup(object):
         self.label_5.setText("")
         self.label_5.setObjectName("label_5")
         self.verticalLayout_4.addWidget(self.label_5)
-        self.horizontalLayoutWidget_4 = QtWidgets.QWidget(Form)
+        self.horizontalLayoutWidget_4 = QtWidgets.QWidget(Setup)
         self.horizontalLayoutWidget_4.setGeometry(QtCore.QRect(20, 700, 611, 51))
         self.horizontalLayoutWidget_4.setObjectName("horizontalLayoutWidget_4")
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget_4)
@@ -244,36 +248,26 @@ class Ui_Setup(object):
         self.okButton.setObjectName("okButton")
         self.horizontalLayout_4.addWidget(self.okButton)
 
-        self.retranslateUi(Form)
-        QtCore.QMetaObject.connectSlotsByName(Form)
+        self.retranslateUi(Setup)
+        QtCore.QMetaObject.connectSlotsByName(Setup)
 
-    def retranslateUi(self, Form):
+    def retranslateUi(self, Setup):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
-        self.label_title_image_result.setText(_translate("Form", "Result View"))
-        self.label_title_original.setText(_translate("Form", "Original View"))
-        self.label_50.setText(_translate("Form", "x:"))
-        self.label_pos_x.setText(_translate("Form", "0"))
-        self.label_51.setText(_translate("Form", "y:"))
-        self.label_pos_y.setText(_translate("Form", "0"))
-        self.label_15.setText(_translate("Form", "Camera Res:"))
-        self.checkBox.setText(_translate("Form", "Polygon"))
-        self.modeLab.setText(_translate("Form", "Mode:"))
-        self.m1Button.setText(_translate("Form", "M1"))
-        self.m2Button.setText(_translate("Form", "M2"))
-        self.labelZoom.setText(_translate("Form", "Zoom:"))
-        self.labelAlpha.setText(_translate("Form", "Alpha:"))
-        self.labelBeta.setText(_translate("Form", "Beta:"))
-        self.labelRoll.setText(_translate("Form", "Roll:"))
-        self.cancelButton.setText(_translate("Form", "Cancel"))
-        self.okButton.setText(_translate("Form", "OK"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Form = QtWidgets.QWidget()
-    ui = Ui_Setup()
-    ui.setupUi(Form)
-    Form.show()
-    sys.exit(app.exec())
+        Setup.setWindowTitle(_translate("Setup", "Form"))
+        self.label_title_image_result.setText(_translate("Setup", "Result View"))
+        self.label_title_original.setText(_translate("Setup", "Original View"))
+        self.label_50.setText(_translate("Setup", "x:"))
+        self.label_pos_x.setText(_translate("Setup", "0"))
+        self.label_51.setText(_translate("Setup", "y:"))
+        self.label_pos_y.setText(_translate("Setup", "0"))
+        self.label_15.setText(_translate("Setup", "Camera Res:"))
+        self.checkBox.setText(_translate("Setup", "Polygon"))
+        self.modeLab.setText(_translate("Setup", "Mode:"))
+        self.m1Button.setText(_translate("Setup", "M1"))
+        self.m2Button.setText(_translate("Setup", "M2"))
+        self.labelZoom.setText(_translate("Setup", "Zoom:"))
+        self.labelAlpha.setText(_translate("Setup", "Alpha:"))
+        self.labelBeta.setText(_translate("Setup", "Beta:"))
+        self.labelRoll.setText(_translate("Setup", "Roll:"))
+        self.cancelButton.setText(_translate("Setup", "Cancel"))
+        self.okButton.setText(_translate("Setup", "OK"))

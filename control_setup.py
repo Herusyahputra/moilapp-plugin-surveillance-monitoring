@@ -121,13 +121,9 @@ class SetupDialog(QtWidgets.QDialog):
         if any(elem is None for elem in alpha_beta):
             self.ui.doubleSpinBox_alpha.setValue(0)
             self.ui.doubleSpinBox_beta.setValue(0)
-            self.ui.label_alpha.setText('0')
-            self.ui.label_beta.setText('0')
         else:
             self.ui.doubleSpinBox_alpha.setValue(round(alpha_beta[0], 2))
             self.ui.doubleSpinBox_beta.setValue(round(alpha_beta[1], 2))
-            self.ui.label_alpha.setText(str(round(alpha_beta[0], 2)))
-            self.ui.label_beta.setText(str(round(alpha_beta[1], 2)))
             
         self.ui.doubleSpinBox_alpha.blockSignals(False)
         self.ui.doubleSpinBox_beta.blockSignals(False)

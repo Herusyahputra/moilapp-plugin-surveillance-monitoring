@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>Setup</class>
+ <widget class="QWidget" name="Setup">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -157,7 +157,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>10</width>
+          <width>40</width>
           <height>38</height>
          </size>
         </property>
@@ -217,7 +217,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>10</width>
+          <width>40</width>
           <height>38</height>
          </size>
         </property>
@@ -469,6 +469,9 @@
           <property name="text">
            <string>M1</string>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">modeSelectGroup</string>
+          </attribute>
          </widget>
         </item>
         <item>
@@ -476,6 +479,9 @@
           <property name="text">
            <string>M2</string>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">modeSelectGroup</string>
+          </attribute>
          </widget>
         </item>
         <item>
@@ -648,4 +654,7 @@
   <include location="../resources/surveillance.qrc"/>
  </resources>
  <connections/>
+ <buttongroups>
+  <buttongroup name="modeSelectGroup"/>
+ </buttongroups>
 </ui>
