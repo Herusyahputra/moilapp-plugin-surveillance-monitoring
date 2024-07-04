@@ -72,6 +72,8 @@ class ImageGallery(QtWidgets.QWidget):
         return stylesheet
     
     def loadImages(self):
+        """Loads images from the specified folder and adds them to the QListWidget"""
+        self.listWidget.clear()
         for filename in os.listdir(self.folder_path):
             if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
                 image_path = osp.join(self.folder_path, filename)
