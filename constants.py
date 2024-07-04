@@ -1,7 +1,7 @@
 from typing import *
 
-MAX_MONITOR_INDEX: int  = 8
-EMPTY_SLOTS: int        = 8
+MAX_MONITOR_INDEX: int  = 6
+EMPTY_SLOTS: int        = 6
 RECORDING_FPS: float    = 30.00
 
 # Constant label image WIDTH and HEIGHT
@@ -15,7 +15,7 @@ MONITORS_POSITIONS: list[Optional[int]]         = [(INDEX + 1) for INDEX in rang
 
 class ModelAppsManager:
     def __init__(self):
-        self.model_apps = [None] * 8
+        self.model_apps = [None] * MAX_MONITOR_INDEX
 
     def get_index_of_model_apps(self, element) -> int:
         try:

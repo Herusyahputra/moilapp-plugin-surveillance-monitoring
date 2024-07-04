@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'c:\Users\nueim\OneDrive\Desktop\C Projects (Assessments)\EWX-Moilapp\src\plugins\moilapp-plugin-surveillance-monitoring\views\surveillance.ui'
+# Form implementation generated from reading ui file 'surveillance.ui'
 #
 # Created by: PyQt6 UI code generator 6.3.1
 #
@@ -7,9 +7,6 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-from os import path
-
-source_path: str = f"{path.abspath(__file__)}/../../resources"
 
 
 class Ui_Main(object):
@@ -62,25 +59,25 @@ class Ui_Main(object):
         self.layoutOneByTwoButton.setMaximumSize(QtCore.QSize(80, 40))
         self.layoutOneByTwoButton.setObjectName("layoutOneByTwoButton")
         self.horizontalLayout_13.addWidget(self.layoutOneByTwoButton)
-        self.layoutTwoByTwoButton = QtWidgets.QPushButton(self.frame)
-        self.layoutTwoByTwoButton.setMaximumSize(QtCore.QSize(80, 40))
-        self.layoutTwoByTwoButton.setObjectName("layoutTwoByTwoButton")
-        self.horizontalLayout_13.addWidget(self.layoutTwoByTwoButton)
-        self.layoutTwoByFourButton = QtWidgets.QPushButton(self.frame)
-        self.layoutTwoByFourButton.setMaximumSize(QtCore.QSize(80, 40))
-        self.layoutTwoByFourButton.setObjectName("layoutTwoByFourButton")
-        self.horizontalLayout_13.addWidget(self.layoutTwoByFourButton)
+        self.layoutOneByThreeButton = QtWidgets.QPushButton(self.frame)
+        self.layoutOneByThreeButton.setMaximumSize(QtCore.QSize(80, 40))
+        self.layoutOneByThreeButton.setObjectName("layoutOneByThreeButton")
+        self.horizontalLayout_13.addWidget(self.layoutOneByThreeButton)
+        self.layoutTwoByThreeButton = QtWidgets.QPushButton(self.frame)
+        self.layoutTwoByThreeButton.setMaximumSize(QtCore.QSize(80, 40))
+        self.layoutTwoByThreeButton.setObjectName("layoutTwoByThreeButton")
+        self.horizontalLayout_13.addWidget(self.layoutTwoByThreeButton)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Minimum)
         self.horizontalLayout_13.addItem(spacerItem1)
         self.recordMonitorButton = QtWidgets.QPushButton(self.frame)
-        self.recordMonitorButton.setMinimumSize(QtCore.QSize(30, 30))
-        self.recordMonitorButton.setMaximumSize(QtCore.QSize(40, 35))
+        self.recordMonitorButton.setMinimumSize(QtCore.QSize(25, 25))
+        self.recordMonitorButton.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.recordMonitorButton.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.recordMonitorButton.setAutoFillBackground(False)
         self.recordMonitorButton.setText("")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(f"{source_path}/record.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        icon.addPixmap(QtGui.QPixmap(f"{source_path}/stop.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.On)
+        icon.addPixmap(QtGui.QPixmap(":/icon/record.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(":/icon/stop.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.On)
         self.recordMonitorButton.setIcon(icon)
         self.recordMonitorButton.setIconSize(QtCore.QSize(25, 25))
         self.recordMonitorButton.setCheckable(True)
@@ -122,7 +119,7 @@ class Ui_Main(object):
         self.rewindButton.setMinimumSize(QtCore.QSize(20, 30))
         self.rewindButton.setText("")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(f"{source_path}/rewind.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon1.addPixmap(QtGui.QPixmap(":/icon/rewind.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.rewindButton.setIcon(icon1)
         self.rewindButton.setIconSize(QtCore.QSize(25, 30))
         self.rewindButton.setObjectName("rewindButton")
@@ -131,7 +128,7 @@ class Ui_Main(object):
         self.playButton.setMinimumSize(QtCore.QSize(20, 30))
         self.playButton.setText("")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(f"{source_path}/play.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon2.addPixmap(QtGui.QPixmap(":/icon/play.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.playButton.setIcon(icon2)
         self.playButton.setIconSize(QtCore.QSize(25, 30))
         self.playButton.setObjectName("playButton")
@@ -140,7 +137,7 @@ class Ui_Main(object):
         self.pauseButton.setMinimumSize(QtCore.QSize(20, 30))
         self.pauseButton.setText("")
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(f"{source_path}/pause.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon3.addPixmap(QtGui.QPixmap(":/icon/pause.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.pauseButton.setIcon(icon3)
         self.pauseButton.setIconSize(QtCore.QSize(25, 30))
         self.pauseButton.setObjectName("pauseButton")
@@ -149,7 +146,7 @@ class Ui_Main(object):
         self.stopButton.setMinimumSize(QtCore.QSize(20, 30))
         self.stopButton.setText("")
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(f"{source_path}/stop.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon4.addPixmap(QtGui.QPixmap(":/icon/stop.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.stopButton.setIcon(icon4)
         self.stopButton.setIconSize(QtCore.QSize(25, 30))
         self.stopButton.setObjectName("stopButton")
@@ -158,7 +155,7 @@ class Ui_Main(object):
         self.forwardButton.setMinimumSize(QtCore.QSize(20, 30))
         self.forwardButton.setText("")
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(f"{source_path}/forward.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon5.addPixmap(QtGui.QPixmap(":/icon/forward.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.forwardButton.setIcon(icon5)
         self.forwardButton.setIconSize(QtCore.QSize(25, 30))
         self.forwardButton.setObjectName("forwardButton")
@@ -189,14 +186,14 @@ class Ui_Main(object):
     def retranslateUi(self, Main):
         _translate = QtCore.QCoreApplication.translate
         Main.setWindowTitle(_translate("Main", "Form"))
-        self.addButton.setText(_translate("Main", "Add New Monitor"))
-        self.fisheyeButton.setText(_translate("Main", "Show Original View"))
-        self.paramButton.setText(_translate("Main", "Camera Parameters"))
-        self.galleryButton.setText(_translate("Main", "Gallery"))
+        self.addButton.setText(_translate("Main", "🖥️ Add New Monitor"))
+        self.fisheyeButton.setText(_translate("Main", "🔍 Show Original View"))
+        self.paramButton.setText(_translate("Main", "📸 Camera Parameters"))
+        self.galleryButton.setText(_translate("Main", "📲 Gallery"))
         self.layoutOneByOneButton.setText(_translate("Main", "⒈x⒈"))
         self.layoutOneByTwoButton.setText(_translate("Main", "⒈x⒉"))
-        self.layoutTwoByTwoButton.setText(_translate("Main", "⒉x⒉"))
-        self.layoutTwoByFourButton.setText(_translate("Main", "⒉x⒋"))
-        self.dateTime.setText(_translate("Main", "00:00"))
-        self.startRecord.setText(_translate("Main", "00:00"))
-        self.endRecord.setText(_translate("Main", "99:99"))
+        self.layoutOneByThreeButton.setText(_translate("Main", "⒈x⒊"))
+        self.layoutTwoByThreeButton.setText(_translate("Main", "⒉x⒊"))
+        self.dateTime.setText(_translate("Main", "００：００"))
+        self.startRecord.setText(_translate("Main", "００：００"))
+        self.endRecord.setText(_translate("Main", "９９：９９"))

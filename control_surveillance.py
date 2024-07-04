@@ -3,12 +3,100 @@ from src.models.model_apps import Model, ModelApps
 from .custom_screen_capture import ScreenRecorder
 from .constants import *
 from .control_setup import SetupDialog
-from .views.recorder_ui import Ui_Recorder
 from .views.surveillance_ui import Ui_Main
 from .views.monitor_ui import Ui_Monitor
 
 from PyQt6 import QtWidgets, QtCore, QtGui
 import os.path as osp
+import os
+
+class ImageGallery(QtWidgets.QWidget):
+    def __init__(self, folder_path):
+        super().__init__()
+        self.model = Model()
+
+        # Splitter to manage the layout dynamically
+        self.splitter = QtWidgets.QSplitter(QtCore.Qt.Orientation.Horizontal)
+        
+        # QListWidget for displaying image thumbnails
+        self.listWidget = QtWidgets.QListWidget()
+        self.listWidget.setIconSize(QtCore.QSize(100, 100))
+        self.listWidget.setViewMode(QtWidgets.QListWidget.ViewMode.IconMode)
+        self.listWidget.setResizeMode(QtWidgets.QListWidget.ResizeMode.Adjust)
+        self.listWidget.itemClicked.connect(self.onImageClicked)
+
+        # QLabel for displaying the selected image
+        self.imageLabel = QtWidgets.QLabel("Please select an image from the list shown on the left side...")
+        self.imageLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        # self.imageLabel.setScaledContents(True)  # Allow QLabel to scale contents
+        self.imageLabel.setMinimumSize(200, 200)
+
+        # Add widgets to the splitter
+        self.splitter.addWidget(self.listWidget)
+        self.splitter.addWidget(self.imageLabel)
+
+        # Set initial sizes: listWidget (1) and imageLabel (1)
+        self.splitter.setSizes([400, 400])
+
+        # Main layout
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(self.splitter)
+        self.setLayout(layout)
+
+        # Load images from the specified folder
+        self.folder_path = folder_path
+        self.loadImages()
+
+        # Store the currently displayed image path
+        self.currentImagePath = None
+    
+    def style_monitor_label(self):
+        if self.model.theme == "light":
+            stylesheet = """
+                            QLabel { 
+                                background-color: rgb(200,205,205);
+                                border-radius: 5px;
+                                font-family: Segoe UI;
+                                font-size: 28px;
+                            }
+                            """
+        else:
+            stylesheet = """
+                            QLabel { 
+                                background-color: #17202b;
+                                border-radius: 5px;
+                                font-family: Segoe UI;
+                                font-size: 28px;
+                            }
+                        """
+        return stylesheet
+    
+    def loadImages(self):
+        for filename in os.listdir(self.folder_path):
+            if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
+                image_path = osp.join(self.folder_path, filename)
+                pixmap = QtGui.QPixmap(image_path)
+                icon = QtGui.QIcon(pixmap.scaled(100, 100, QtCore.Qt.AspectRatioMode.KeepAspectRatio))
+
+                # Create a QListWidgetItem with the image icon
+                item = QtWidgets.QListWidgetItem(icon, filename)
+                item.setWhatsThis(image_path) # Store the image path in the item
+
+                self.listWidget.addItem(item)
+
+    def onImageClicked(self, item):
+        image_path = item.whatsThis()
+
+        if image_path == self.currentImagePath:
+            # Clear the QLabel if the same image is clicked
+            self.imageLabel.clear()
+            self.imageLabel.setText("Please select an image from the list shown on the left side...")
+            self.currentImagePath = None
+        else:
+            # Display the full-size image
+            pixmap = QtGui.QPixmap(image_path).scaled(self.imageLabel.size(), QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.SmoothTransformation)
+            self.imageLabel.setPixmap(pixmap)
+            self.currentImagePath = image_path
 
 class CustomStackedWidget(QtWidgets.QWidget):
     def __init__(self, widgets, rows=1, columns=1):
@@ -25,6 +113,8 @@ class CustomStackedWidget(QtWidgets.QWidget):
         # Create navigation buttons
         self.prevButton = QtWidgets.QPushButton("🔙 Go to PREVIOUS")
         self.nextButton = QtWidgets.QPushButton("🔜 Go to NEXT")
+        self.prevButton.setMinimumSize(QtCore.QSize(0, 40))
+        self.nextButton.setMinimumSize(QtCore.QSize(0, 40))
         self.prevButton.clicked.connect(self.showPrevious)
         self.nextButton.clicked.connect(self.showNext)
 
@@ -145,7 +235,6 @@ class CustomWidget(QtWidgets.QWidget):
     def dropEvent(self, event):
         global MAX_MONITOR_INDEX, EMPTY_SLOTS, LATEST_MOVED_WIDGET, MONITORS_POSITIONS
         
-        id = 0
         updated_ui_idx = {}
         if event.mimeData().hasText():
             sender = event.mimeData().text()
@@ -186,6 +275,11 @@ class Controller(QtWidgets.QWidget):
         self.ui.paramButton.clicked.connect(self.parameter_clicked)
         self.ui.galleryButton.clicked.connect(self.gallery_clicked)
 
+        self.save_image_dir = osp.realpath(osp.join(osp.dirname(__file__), '../../../saved_image/anypoint/'))
+        self.save_image_dir = osp.join(self.save_image_dir, "")
+        if not osp.exists(self.save_image_dir):
+            os.makedirs(self.save_image_dir)
+
         widgets = []
         for i in range(MAX_MONITOR_INDEX * 2):
             widget = CustomWidget()
@@ -206,17 +300,20 @@ class Controller(QtWidgets.QWidget):
             widget.scrollArea = ui_monitor.scrollArea
             widgets.append(widget)
         
-        self.image_width = LABEL_IMAGE_WIDTH
-    
-        self.grid_monitor = CustomStackedWidget(widgets[:8], 2, 4)
-        self.grid_original_monitor = CustomStackedWidget(widgets[8:], 2, 4)
+        self.grid_monitor = CustomStackedWidget(widgets[:MAX_MONITOR_INDEX], 2, 3)
+        self.grid_original_monitor = CustomStackedWidget(widgets[MAX_MONITOR_INDEX:], 2, 3)
         self.ui.stackedWidget.addWidget(self.grid_monitor)
         self.ui.stackedWidget.addWidget(self.grid_original_monitor)
         self.ui.layoutOneByOneButton.clicked.connect(self.relayout_grid_clicked)
         self.ui.layoutOneByTwoButton.clicked.connect(self.relayout_grid_clicked)
-        self.ui.layoutTwoByTwoButton.clicked.connect(self.relayout_grid_clicked)
-        self.ui.layoutTwoByFourButton.clicked.connect(self.relayout_grid_clicked)
+        self.ui.layoutOneByThreeButton.clicked.connect(self.relayout_grid_clicked)
+        self.ui.layoutTwoByThreeButton.clicked.connect(self.relayout_grid_clicked)
         self.model_apps_manager = ModelAppsManager()
+
+        self.image_gallery = ImageGallery(self.save_image_dir)
+        self.ui.stackedWidget.addWidget(self.image_gallery)
+        
+        self.image_width = LABEL_IMAGE_WIDTH
 
         recorder_widgets = []
         for i in range(MAX_MONITOR_INDEX):
@@ -229,7 +326,7 @@ class Controller(QtWidgets.QWidget):
             widget.scrollArea = ui_monitor.scrollArea
             recorder_widgets.append(widget)
             
-        self.recorder_widget = CustomStackedWidget(recorder_widgets, 2, 4)
+        self.recorder_widget = CustomStackedWidget(recorder_widgets, 2, 3)
         screen_geometry = QtWidgets.QApplication.primaryScreen().availableGeometry()
         screen_width = screen_geometry.width()
         screen_height = screen_geometry.height()
@@ -243,14 +340,16 @@ class Controller(QtWidgets.QWidget):
         [monitor.swap_signal.connect(self.handle_swapping) for monitor in self.grid_monitor.monitors]
         self.tmp_model_apps_container = []
         self.image_results = {}
-        self.set_stylesheet()
         
+        self.image_gallery.listWidget.clear()
+        self.set_stylesheet()
+    
     def style_monitor_label(self):
         if self.model.theme == "light":
             stylesheet = """
                             QLabel { 
                                 background-color: rgb(200,205,205);
-                                border-radius: 3px;
+                                border-radius: 5px;
                                 font-family: Segoe UI;
                                 font-size: 28px;
                             }
@@ -259,7 +358,7 @@ class Controller(QtWidgets.QWidget):
             stylesheet = """
                             QLabel { 
                                 background-color: #17202b;
-                                border-radius: 3px;
+                                border-radius: 5px;
                                 font-family: Segoe UI;
                                 font-size: 28px;
                             }
@@ -272,11 +371,13 @@ class Controller(QtWidgets.QWidget):
         
         [button.setStyleSheet(self.model.style_pushbutton()) for button in self.findChildren(QtWidgets.QPushButton)]
         [scroll_area.setStyleSheet(self.model.style_scroll_area()) for scroll_area in self.findChildren(QtWidgets.QScrollArea)]
+        [label.setStyleSheet(self.model.style_label()) for label in self.findChildren(QtWidgets.QLabel)]
+        self.image_gallery.imageLabel.setStyleSheet(self.model.style_label())
         
-        [label.setStyleSheet(self.style_monitor_label()) for i, label in enumerate(self.findChildren(QtWidgets.QLabel)) if 8 < i <= (MAX_MONITOR_INDEX * 2)]
-        [label.setStyleSheet(self.model.style_label()) for j, label in enumerate(self.findChildren(QtWidgets.QLabel)) if j <= (MAX_MONITOR_INDEX)]
+        [label.setStyleSheet(self.style_monitor_label()) for monitor_id, label in enumerate(self.findChildren(QtWidgets.QLabel)) if 8 <= monitor_id <= ((MAX_MONITOR_INDEX * 2) + 1)]
+        [label.setStyleSheet(self.model.style_label()) for monitor_id, label in enumerate(self.findChildren(QtWidgets.QLabel)) if monitor_id <= (MAX_MONITOR_INDEX + 1)]
         [label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter) for label in self.findChildren(QtWidgets.QLabel)]
-        [label.setText(f"{monitor_id - MAX_MONITOR_INDEX}" if monitor_id - MAX_MONITOR_INDEX > 0 else f"{monitor_id + 1}") for monitor_id, label in enumerate(self.findChildren(QtWidgets.QLabel)) if 8 < monitor_id <= (MAX_MONITOR_INDEX * 2)]
+        [label.setText(f"{MONITORS_POSITIONS[(monitor_id - 2) - MAX_MONITOR_INDEX]}" if ((monitor_id - 2) - MAX_MONITOR_INDEX) < len(MONITORS_POSITIONS) else f"") for monitor_id, label in enumerate(self.findChildren(QtWidgets.QLabel)) if 8 <= monitor_id <= ((MAX_MONITOR_INDEX * 2) + 1)]
         
         self.ui.line.setStyleSheet(self.model.style_line())
         self.ui.line_2.setStyleSheet(self.model.style_line())
@@ -308,14 +409,7 @@ class Controller(QtWidgets.QWidget):
         
         ui_idx = self.model_apps_manager.get_empty_model_apps()
         if not ui_idx:
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            msg.setStyleSheet("font-family: Segoe UI; font-size:14px;")
-            msg.setWindowTitle("Information!")
-        
-            msg.setText("Cannot add more monitors!")
-            msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
-            msg.exec()
+            self.msg_warn_cant_add_more_monitors()
             return
         
         ui_idx: int = ui_idx[0]
@@ -339,35 +433,37 @@ class Controller(QtWidgets.QWidget):
         
         if media_sources[2] is not None:
             if self.tmp_model_apps_container:
-                model_apps = self.tmp_model_apps_container[0]
+                cur_model_apps = self.tmp_model_apps_container[0]
             else:
-                model_apps = ModelApps()
-            
-            model_apps.update_file_config()
-            model_apps.set_media_source(*media_sources)
+                cur_model_apps = ModelApps()
+            cur_model_apps.update_file_config()
+            cur_model_apps.set_media_source(*media_sources)
 
-            if not self.setup_monitor(model_apps):
-                if model_apps not in self.tmp_model_apps_container:
-                    self.tmp_model_apps_container.append(model_apps)
+            if not self.setup_monitor(cur_model_apps):
+                # if setup is cancelled, put the monitor in a list
+                if cur_model_apps not in self.tmp_model_apps_container:
+                    self.tmp_model_apps_container.append(cur_model_apps)
                 return
             else:
+                # if setup is successful, remove the monitor from the list and use it as the currently added monitor
                 if self.tmp_model_apps_container:
                     self.tmp_model_apps_container.pop()
             
             if prev_model_apps:
                 self.delete_monitor(prev_model_apps)
             
-            model_apps.signal_image_original.connect(lambda img: self.update_label_image(label_original, img)) # will draw crosshair
+            cur_model_apps.signal_image_original.connect(lambda img: self.update_label_image(label_original, img)) # will draw crosshair
             # self.update_label_image(label_original, model_apps.image_resize.copy()) # no crosshair but won't update video
-            model_apps.set_draw_polygon = False
-            model_apps.image_result.connect(lambda img: self.update_label_image(label, img))
-            model_apps.image_result.connect(lambda img: self.update_label_image(label_recording, img, width=self.recorded_image_width))
-            model_apps.image_result.connect(lambda img: self.set_image_results(model_apps, img))
-            model_apps.create_image_result()
+            cur_model_apps.set_draw_polygon = False
+            cur_model_apps.image_result.connect(lambda img: self.update_label_image(label, img))
+            cur_model_apps.image_result.connect(lambda img: self.update_label_image(label_recording, img, width=self.recorded_image_width))
+            cur_model_apps.image_result.connect(lambda img: self.set_image_results(cur_model_apps, img))
+            cur_model_apps.create_image_result()
             setup_button.clicked.connect(lambda: self.setup_clicked(media_sources))
-            capture_button.clicked.connect(lambda: self.save_image(model_apps))
-            delete_button.clicked.connect(lambda: self.delete_monitor(model_apps))
-            self.model_apps_manager.set_model_apps(ui_idx, model_apps)
+            capture_button.clicked.connect(lambda: self.save_image(cur_model_apps))
+            duplicate_button.clicked.connect(lambda: self.duplicate_monitor(media_sources))
+            delete_button.clicked.connect(lambda: self.delete_monitor(cur_model_apps))
+            self.model_apps_manager.set_model_apps(ui_idx, cur_model_apps)
 
     def update_label_image(self, ui_label, image, width: Optional[int] = "Default", scale_content: bool = False):
         if width == "Default": width = self.image_width
@@ -380,6 +476,15 @@ class Controller(QtWidgets.QWidget):
         dialog = SetupDialog(model_apps)
         result = dialog.exec()
         if (result == QtWidgets.QDialog.DialogCode.Accepted): return True
+
+    def duplicate_monitor(self, media_sources: tuple):
+        ui_idx = self.model_apps_manager.get_empty_model_apps()
+        if not ui_idx:
+            self.msg_warn_cant_add_more_monitors()
+            return
+        
+        ui_idx: int = ui_idx[0]
+        self.connect_monitor(ui_idx, media_sources)
 
     def delete_monitor(self, model_apps: ModelApps):
         global MAX_MONITOR_INDEX, EMPTY_SLOTS, LATEST_MOVED_WIDGET
@@ -396,6 +501,7 @@ class Controller(QtWidgets.QWidget):
         label_original.setText(f"{MONITORS_POSITIONS[ui_idx]}")
         setup_button.clicked.disconnect()
         capture_button.clicked.disconnect()
+        duplicate_button.clicked.disconnect()
         delete_button.clicked.disconnect()
 
         if model_apps.cap is not None:
@@ -415,29 +521,55 @@ class Controller(QtWidgets.QWidget):
         AVAILABLE_MONITORS[ui_idx] = 0
         EMPTY_SLOTS += 1
 
-    def save_image(self, model_apps : ModelApps):
-        dir_save = osp.realpath(osp.join(osp.dirname(__file__), '../../../saved_image/anypoint/'))
-        dir_save = osp.join(dir_save, "")
-        model_apps.save_image_file(self.image_results[model_apps], dir_save, model_apps.parameter_name)
-        print(f'Image saved in {dir_save}!')
-
-    def gallery_clicked(self):
-        print("INFO: \"gallery_clicked()\" function is STILL under development!")
+    def save_image(self, model_apps: ModelApps):
+        model_apps.save_image_file(self.image_results[model_apps], self.save_image_dir, model_apps.parameter_name)
+        print(f'Image saved in {self.save_image_dir}')
 
     def parameter_clicked(self):
         self.model.form_camera_parameter()
 
-    def original_view_clicked(self):
-        if self.ui.stackedWidget.currentIndex():
-            self.ui.stackedWidget.setCurrentIndex(0)
-            self.ui.fisheyeButton.setText('Show Original View')
-        else:
-            self.ui.stackedWidget.setCurrentIndex(1)
-            self.ui.fisheyeButton.setText('Show Rectilinear View')
+    def gallery_clicked(self):
+        # Application view by index:
+        # 0: Orihinal view
+        # 1: Rectilinear view
+        # 2: Gallery view
         
-        [label.setStyleSheet(self.style_monitor_label()) for i, label in enumerate(self.findChildren(QtWidgets.QLabel)) if 8 < i <= (MAX_MONITOR_INDEX * 2)]
-        [label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter) for label in self.findChildren(QtWidgets.QLabel)]
-        [label.setText(f"{monitor_id - MAX_MONITOR_INDEX}" if monitor_id - MAX_MONITOR_INDEX > 0 else f"{monitor_id + 1}") for monitor_id, label in enumerate(self.findChildren(QtWidgets.QLabel)) if 8 < monitor_id <= (MAX_MONITOR_INDEX * 2)]
+        if self.ui.stackedWidget.currentIndex() == 2:
+            self.ui.stackedWidget.setCurrentIndex(0)
+            self.ui.galleryButton.setText('📲 Gallery')
+            self.image_gallery.listWidget.clear()
+            self.ui.addButton.setDisabled(False)
+            self.ui.fisheyeButton.setDisabled(False)
+            self.ui.paramButton.setDisabled(False)
+        else:
+            self.ui.stackedWidget.setCurrentIndex(2)
+            self.image_gallery.loadImages()
+            self.ui.galleryButton.setText('🔙 Go BACK')
+            self.ui.addButton.setDisabled(True)
+            self.ui.fisheyeButton.setDisabled(True)
+            self.ui.paramButton.setDisabled(True)
+
+    def original_view_clicked(self):
+        global MAX_MONITOR_INDEX, MONITORS_POSITIONS
+
+        # Application view by index:
+        # 0: Orihinal view
+        # 1: Rectilinear view
+        # 2: Gallery view
+        
+        if self.ui.stackedWidget.currentIndex() == 1:
+            self.ui.stackedWidget.setCurrentIndex(0)
+            self.ui.fisheyeButton.setText('🔍 Show Original View')
+        elif self.ui.stackedWidget.currentIndex() == 0:
+            self.ui.stackedWidget.setCurrentIndex(1)
+            self.ui.fisheyeButton.setText('🔎 Show Rectilinear View')
+        elif self.ui.stackedWidget.currentIndex() == 2:
+            self.ui.galleryButton.setText('🔙 Go BACK')
+            return
+        
+        # [label.setStyleSheet(self.style_monitor_label()) for i, label in enumerate(self.findChildren(QtWidgets.QLabel)) if 8 < i <= ((MAX_MONITOR_INDEX * 2) + 1)]
+        # [label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter) for label in self.findChildren(QtWidgets.QLabel)]
+        # [label.setText(f"{MONITORS_POSITIONS[(monitor_id - 2) - MAX_MONITOR_INDEX]}" if ((monitor_id - 2) - MAX_MONITOR_INDEX) < len(MONITORS_POSITIONS) else f"") for monitor_id, label in enumerate(self.findChildren(QtWidgets.QLabel)) if 8 < monitor_id <= ((MAX_MONITOR_INDEX * 2) + 1)]
     
     def relayout_grid_clicked(self):
         if self.sender().objectName() == 'layoutOneByOneButton':
@@ -446,12 +578,12 @@ class Controller(QtWidgets.QWidget):
         elif self.sender().objectName() == 'layoutOneByTwoButton':
             self.grid_monitor.setGridSize(1, 2)
             self.grid_original_monitor.setGridSize(1, 2)
-        elif self.sender().objectName() == 'layoutTwoByTwoButton':
-            self.grid_monitor.setGridSize(2, 2)
-            self.grid_original_monitor.setGridSize(2, 2)
-        elif self.sender().objectName() == 'layoutTwoByFourButton':
-            self.grid_monitor.setGridSize(2, 4)
-            self.grid_original_monitor.setGridSize(2, 4)
+        elif self.sender().objectName() == 'layoutOneByThreeButton':
+            self.grid_monitor.setGridSize(1, 3)
+            self.grid_original_monitor.setGridSize(1, 3)
+        elif self.sender().objectName() == 'layoutTwoByThreeButton':
+            self.grid_monitor.setGridSize(2, 3)
+            self.grid_original_monitor.setGridSize(2, 3)
             
         self.image_width = self.grid_monitor.monitors[0].get_width()
         self.image_width = round(self.image_width / 20) * 20
@@ -471,7 +603,17 @@ class Controller(QtWidgets.QWidget):
         self.recorder_widget.updateStackedWidget()
         self.recorder_widget.updateButtons()
 
-class SurveillanceMonitor(PluginInterface):
+    def msg_warn_cant_add_more_monitors(self):
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        msg.setStyleSheet("font-family: Segoe UI; font-size: 14px;")
+        msg.setWindowTitle("WARNING: Processing to add a new monitor...")
+    
+        msg.setText("Maximum amount of added monitors have reached already (max. at 6)!\nPlease reduce the amount of monitors first before adding a new one later... .")
+        msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
+        msg.exec()
+
+class SurveillanceMonitoring(PluginInterface):
     def __init__(self):
         super().__init__()
         self.widget = None

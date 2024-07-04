@@ -65,6 +65,7 @@ class SetupDialog(QtWidgets.QDialog):
     def set_stylesheet(self):
         # self.ui.label_title_original.setStyleSheet(self.model.style_label_title())
         # self.ui.label_title_image_result.setStyleSheet(self.model.style_label_title())
+        
         self.ui.label_image_original.setStyleSheet(self.model.style_label())
         self.ui.label_image_result.setStyleSheet(self.model.style_label())
         self.ui.topButton.setStyleSheet(self.model.style_pushbutton())
@@ -235,6 +236,7 @@ class SetupDialog(QtWidgets.QDialog):
             try: self.model_apps.cap.close()
             except: pass
             self.model_apps.cap = None
+        # self.model_apps.deleteLater()
         self.reject()
         self.close()
 
