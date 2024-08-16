@@ -2,7 +2,8 @@
 
 ![](resources/welcomelabel.png)
 
-<p style="text-align: center;">By Muhammad Hafiz, Basyir Rizki, and Immanuel Eben</p>
+By Muhammad Hafiz, Basyir Rizki, and Immanuel Eben
+
 
 ## Screenshots
 
@@ -34,10 +35,10 @@ python3 main.py
 ```
 
 ### Add Monitor (Rectalinear View)
-WIP
+https://github.com/user-attachments/assets/3cf2a96b-1123-44f0-9995-9ca64430bd9b
 
 ### Setup Menu
-WIP
+https://github.com/user-attachments/assets/ee98d92e-740e-4d94-8459-24bc992009d6
 
 ### Interactive Canvas (Fisheye View)
-WIP
+https://github.com/user-attachments/assets/e48fa01c-f694-43fc-aa33-7ec05c675a17
